@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jsLearn</title>
+    <link rel="stylesheet" href="css/libs.css">
+    <link rel="stylesheet" href="css/main_global.css">
+</head>
+<body>
+
+<div class="players">
+    <div class="player__1">
+        <a href="#small-dialog" class="btn btn__player btn__theme-standart btn__theme-standart-size">12</a>
+        <span class="players__result">Выбрано:</span>
+    </div>
+    <div class="player__2">
+        <a href="#small-dialog" class="btn btn__player btn__theme-standart btn__theme-standart-size">23</a>
+        <span class="players__result">Выбрано:</span>
+    </div>
+    <span class="players__winner">Победитель: </span>
+</div>
+
+<div id="small-dialog" class="zoom-anim-dialog mfp-hide">
+    <h1 id="playerName"></h1>
+    <h3>Выберите предмет</h3>
+   <hr>
+    <div class="items">
+        <button class="items__card stone-item btn">
+            Камень
+        </button>
+        <button class="items__card scissors-item btn">
+            Ножницы
+        </button>
+        <button class="items__card paper-item btn">
+            Бумага
+        </button>
+    </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
