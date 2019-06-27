@@ -38,74 +38,74 @@ var storage = {
 }
 
 function getSnakeCell(str) {
-    if (str == "head") return table.rows[snake.head.row].cells[snake.head.cell];
-    else if (str == "body") return table.rows[snake.body[1].row].cells[snake.body[1].cell];
-    else if (str == "tail") return table.rows[snake.tail.row].cells[snake.tail.cell];
+    if (str === "head") return table.rows[snake.head.row].cells[snake.head.cell];
+    else if (str === "body") return table.rows[snake.body[1].row].cells[snake.body[1].cell];
+    else if (str === "tail") return table.rows[snake.tail.row].cells[snake.tail.cell];
     else return table.rows[snake.body[str].row].cells[snake.body[str].cell];
 }
 
 function start() {
     KEY_SPACE = true;
     gameIteration = setInterval(function () {
-        if (drive[0] == 1 && snake.head.cell)
+        if (drive[0] === 1 && snake.head.cell)
             snake.body.unshift({
                 row: snake.head.row,
                 cell: snake.head.cell - 1
             });
-        else if (drive[0] == 1 && !snake.head.cell)
+        else if (drive[0] === 1 && !snake.head.cell)
             snake.body.unshift({
                 row: snake.head.row,
                 cell: gameSet.cells - 1
             });
 
-        if (drive[0] == 2 && snake.head.row)
+        if (drive[0] === 2 && snake.head.row)
             snake.body.unshift({
                 row: snake.head.row - 1,
                 cell: snake.head.cell
             });
-        else if (drive[0] == 2 && !snake.head.row)
+        else if (drive[0] === 2 && !snake.head.row)
             snake.body.unshift({
                 row: gameSet.rows - 1,
                 cell: snake.head.cell
             });
 
-        if (drive[0] == 3 && snake.head.cell != gameSet.cells - 1)
+        if (drive[0] === 3 && snake.head.cell !== gameSet.cells - 1)
             snake.body.unshift({
                 row: snake.head.row,
                 cell: snake.head.cell + 1
             });
-        else if (drive[0] == 3 && snake.head.cell == gameSet.cells - 1)
+        else if (drive[0] === 3 && snake.head.cell === gameSet.cells - 1)
             snake.body.unshift({
                 row: snake.head.row,
                 cell: 0
             });
 
         //����		
-        if (drive[0] == 4 && snake.head.row != gameSet.rows - 1)
+        if (drive[0] === 4 && snake.head.row !== gameSet.rows - 1)
             snake.body.unshift({
                 row: snake.head.row + 1,
                 cell: snake.head.cell
             });
-        else if (drive[0] == 4 && snake.head.row != gameSet.row - 1)
+        else if (drive[0] === 4 && snake.head.row !== gameSet.row - 1)
             snake.body.unshift({
                 row: 0,
                 cell: snake.head.cell
             });
         //-------------------------------------------------------------------
-        if (drive[0] != tmpDrive[0]) {
+        if (drive[0] !== tmpDrive[0]) {
             var x = 0;
-            if (drive[0] == 1) {
-                if (tmpDrive[0] == 2) x = 4;
-                if (tmpDrive[0] == 4) x = 1;
-            } else if (drive[0] == 2) {
-                if (tmpDrive[0] == 1) x = 2;
-                if (tmpDrive[0] == 3) x = 1;
-            } else if (drive[0] == 3) {
-                if (tmpDrive[0] == 2) x = 3;
-                if (tmpDrive[0] == 4) x = 2;
-            } else if (drive[0] == 4) {
-                if (tmpDrive[0] == 1) x = 3;
-                if (tmpDrive[0] == 3) x = 4;
+            if (drive[0] === 1) {
+                if (tmpDrive[0] === 2) x = 4;
+                if (tmpDrive[0] === 4) x = 1;
+            } else if (drive[0] === 2) {
+                if (tmpDrive[0] === 1) x = 2;
+                if (tmpDrive[0] === 3) x = 1;
+            } else if (drive[0] === 3) {
+                if (tmpDrive[0] === 2) x = 3;
+                if (tmpDrive[0] === 4) x = 2;
+            } else if (drive[0] === 4) {
+                if (tmpDrive[0] === 1) x = 3;
+                if (tmpDrive[0] === 3) x = 4;
             }
             snake.body[1].corner = x;
             snake.body[1].drive = drive[0];
@@ -115,7 +115,7 @@ function start() {
         snake.head = snake.body[0];
         if (!checkNextStep()) printSnake();
 
-        if (drive.length != 1) {
+        if (drive.length !== 1) {
             drive.shift();
             tmpDrive.shift();
         }
@@ -128,10 +128,10 @@ function setSnake() {
         if (!!table.rows[snake.body[i].row] && !!table.rows[snake.body[i].row].cells[snake.body[i].cell])
             getSnakeCell(i).style.backgroundImage = "";
     }
-    snake.startPos = 3;
+    snake.startPos = 4;
     for (var i = 0; i < snake.body.length; i++) {
-        if (i == 0) getSnakeCell(i).style.backgroundImage = "url('img/snakeHeadR.png')";
-        else if (i == snake.body.length - 1) getSnakeCell(i).style.backgroundImage = "url('img/snakeTailR.png')";
+        if (i === 0) getSnakeCell(i).style.backgroundImage = "url('img/snakeHeadR.png')";
+        else if (i === snake.body.length - 1) getSnakeCell(i).style.backgroundImage = "url('img/snakeTailR.png')";
         else getSnakeCell(i).style.backgroundImage = "url('img/snakeBodyRL.png')";
     }
 }
@@ -146,12 +146,12 @@ function printSnake() {
     getSnakeCell("tail").style.backgroundImage = "url('" + imgArrayTail[(snake.tail.drive) - 1] + "')";
 }
 
-function setApple() { //��������� �����
+function setApple() {
     var appleMas = getRandomCell();
-    if (score != gameSet.score - 1) table.rows[appleMas[0]].cells[appleMas[1]].className = "appleElem";
+    if (score !== gameSet.score - 1) table.rows[appleMas[0]].cells[appleMas[1]].className = "appleElem";
     else table.rows[appleMas[0]].cells[appleMas[1]].className = "lastAppleElem";
     x = Math.round(5 + ((score * 10) / 100));
-    if (counter.appleCount == x && gameSet.numberLevel == "Free Game") {
+    if (counter.appleCount === x && gameSet.numberLevel === "Free Game") {
         var speedAppleMas = getRandomCell();
         table.rows[speedAppleMas[0]].cells[speedAppleMas[1]].className = "speedAppleElem";
         timeId = setTimeout(function () {
