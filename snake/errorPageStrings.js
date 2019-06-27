@@ -80,7 +80,6 @@ function start() {
                 cell: 0
             });
 
-        //����		
         if (drive[0] === 4 && snake.head.row !== gameSet.rows - 1)
             snake.body.unshift({
                 row: snake.head.row + 1,
@@ -93,7 +92,7 @@ function start() {
             });
         //-------------------------------------------------------------------
         if (drive[0] !== tmpDrive[0]) {
-            var x = 0;
+            let x = 0;
             if (drive[0] === 1) {
                 if (tmpDrive[0] === 2) x = 4;
                 if (tmpDrive[0] === 4) x = 1;
@@ -124,12 +123,12 @@ function start() {
 }
 
 function setSnake() {
-    for (var i = 1; i < snake.body.length; i++) {
+    for (let i = 1; i < snake.body.length; i++) {
         if (!!table.rows[snake.body[i].row] && !!table.rows[snake.body[i].row].cells[snake.body[i].cell])
             getSnakeCell(i).style.backgroundImage = "";
     }
     snake.startPos = 4;
-    for (var i = 0; i < snake.body.length; i++) {
+    for (let i = 0; i < snake.body.length; i++) {
         if (i === 0) getSnakeCell(i).style.backgroundImage = "url('img/snakeHeadR.png')";
         else if (i === snake.body.length - 1) getSnakeCell(i).style.backgroundImage = "url('img/snakeTailR.png')";
         else getSnakeCell(i).style.backgroundImage = "url('img/snakeBodyRL.png')";
@@ -147,12 +146,12 @@ function printSnake() {
 }
 
 function setApple() {
-    var appleMas = getRandomCell();
+    let appleMas = getRandomCell();
     if (score !== gameSet.score - 1) table.rows[appleMas[0]].cells[appleMas[1]].className = "appleElem";
     else table.rows[appleMas[0]].cells[appleMas[1]].className = "lastAppleElem";
     x = Math.round(5 + ((score * 10) / 100));
     if (counter.appleCount === x && gameSet.numberLevel === "Free Game") {
-        var speedAppleMas = getRandomCell();
+        let speedAppleMas = getRandomCell();
         table.rows[speedAppleMas[0]].cells[speedAppleMas[1]].className = "speedAppleElem";
         timeId = setTimeout(function () {
             table.rows[speedAppleMas[0]].cells[speedAppleMas[1]].className = "";
@@ -162,19 +161,19 @@ function setApple() {
 }
 
 function setHP() {
-    var hp = getRandomCell();
+    let hp = getRandomCell();
     table.rows[hp[0]].cells[hp[1]].className = "hpBlock";
 }
 
 function getRandomCell() {
-    var FLAG = true;
-    var el, el1;
-    var mas;
+    let FLAG = true;
+    let el, el1;
+    let mas;
     mas = [Math.floor(Math.random() * gameSet.rows), Math.floor(Math.random() * gameSet.cells)]
     while (FLAG) {
         el = table.rows[mas[0]].cells[mas[1]].className;
         el1 = table.rows[mas[0]].cells[mas[1]].style.backgroundImage;
-        if (!!el1 || el == "crashBlock" || el == "appleElem" || el == "hpBlock") {
+        if (!!el1 || el === "crashBlock" || el === "appleElem" || el === "hpBlock") {
             mas[0] = Math.floor(Math.random() * gameSet.rows);
             mas[1] = Math.floor(Math.random() * gameSet.cells);
         } else FLAG = false
@@ -186,11 +185,11 @@ function checkNextStep() {
     var el = getSnakeCell("head").className;
     var elStyle = getSnakeCell("head").style.backgroundImage;
 
-    if (el == "appleElem" || el == "lastAppleElem") {
+    if (el === "appleElem" || el === "lastAppleElem") {
         getSnakeCell("head").className = "";
         document.getElementById("score").innerHTML = "Score:" + String(score += 1) + "|" + gameSet.score;
-        if (gameSet.numberLevel % 3 == 0 && score == gameSet.score - 1) setHP();
-        if (gameSet.numberLevel == "Free Game") {
+        if (gameSet.numberLevel % 3 === 0 && score === gameSet.score - 1) setHP();
+        if (gameSet.numberLevel === "Free Game") {
             counter(2);
             if (AUTOSPEED_MODE) {
                 gameSet.setSpeed = (200 - (gameSet.speed - 2));
@@ -198,8 +197,8 @@ function checkNextStep() {
                 start();
             }
         }
-        if (score == gameSet.score) {
-            if (counter(1) == levelMas.length - 1) alert("You win! This Free Level. Good luck");
+        if (score === gameSet.score) {
+            if (counter(1) === levelMas.length - 1) alert("You win! This Free Level. Good luck");
             return 1;
         } else {
             snake.body.push({
@@ -209,7 +208,7 @@ function checkNextStep() {
             setApple();
             return 0;
         }
-    } else if (el == "speedAppleElem") {
+    } else if (el === "speedAppleElem") {
         getSnakeCell("head").className = "";
         clearTimeout(timeId);
         counter.appleCount = 0;
@@ -217,12 +216,12 @@ function checkNextStep() {
         else document.getElementById("score").innerHTML = "Score:" + String(score += 5) + "|" + gameSet.score;
         clearInterval(gameIteration);
         start();
-    } else if (el == "hpBlock") {
+    } else if (el === "hpBlock") {
         getSnakeCell("head").className = "";
         snake.setHP = snake.hp + 1;
     }
 
-    else if (el == "crashBlock" || elStyle != "") {
+    else if (el === "crashBlock" || elStyle !== "") {
         stop();
         return 1;
     }
@@ -230,13 +229,13 @@ function checkNextStep() {
 
 function createCounter() {
     function body(params) {
-        if (params == 1) {
+        if (params === 1) {
             getArea(nextLevel());
             return body.winCount++;
         } else {
             return body.appleCount++;
         }
-    };
+    }
     body.winCount = 1;
     body.appleCount = 0;
     return body;
@@ -244,32 +243,32 @@ function createCounter() {
 
 function setBlocksFreeLevel() {
     table.addEventListener('click', function (e) {
-        //if (gameSet.numberLevel == "Free Game"){
-        var rowIndex = e.target.parentNode.rowIndex;
-        var cellIndex = e.target.cellIndex;
-        gameSet.crashBlocksArray.push({
-            row: rowIndex,
-            cell: cellIndex
-        });
-        if (!!table.rows[rowIndex] && table.rows[rowIndex].cells[cellIndex].className == "")
-            table.rows[rowIndex].cells[cellIndex].className = "crashBlock";
-        //}
+        if (gameSet.numberLevel == "Free Game"){
+            let rowIndex = e.target.parentNode.rowIndex;
+            let cellIndex = e.target.cellIndex;
+            gameSet.crashBlocksArray.push({
+                row: rowIndex,
+                cell: cellIndex
+            });
+            if (!!table.rows[rowIndex] && table.rows[rowIndex].cells[cellIndex].className === "")
+                table.rows[rowIndex].cells[cellIndex].className = "crashBlock";
+        }
     });
     table.addEventListener('dblclick', function (e) {
         var rowIndex = e.target.parentNode.rowIndex;
         var cellIndex = e.target.cellIndex;
         if (!!table.rows[rowIndex])
             table.rows[rowIndex].cells[cellIndex].className = "";
-        gameSet.crashBlocksArray.pop();
+        gameSet.crashBlocksArray.pop(); //error
     });
 }
 
 function printMas() {
-    var str;
-    for (var i = 0; i < gameSet.rows; i++) {
-        for (var j = 0; j < gameSet.cells; j++) {
-            if (table.rows[i].cells[j].className == "crashBlock")
-                str += 1 + ","
+    let str;
+    for (let i = 0; i < gameSet.rows; i++) {
+        for (let j = 0; j < gameSet.cells; j++) {
+            if (table.rows[i].cells[j].className === "crashBlock")
+                str += 1 + ",";
             else str += 0 + ","
         }
         str += "\n";
@@ -278,10 +277,10 @@ function printMas() {
 }
 
 function stop() {
-    if (gameSet.numberLevel != "Free Game") {
+    if (gameSet.numberLevel !== "Free Game") {
         snake.setHP = snake.hp - 1;
         if (!snake.hp) {
-            var name = prompt("GameOver.You score:"+score+" Enter your Name", "");
+            let name = prompt("GameOver.You score:"+score+" Enter your Name", "");
             if (name) {
                 storage.name = name;
                 storage.mode = gameSet.mode;
@@ -304,7 +303,7 @@ function stop() {
         }
 
     } else {
-        var name = prompt("GameOver.You score:"+score+" Enter your Name", "");
+        let name = prompt("GameOver.You score:"+score+" Enter your Name", "");
         if (name) {
             storage.name = name;
             storage.mode = gameSet.mode;
@@ -313,7 +312,7 @@ function stop() {
             storage.score = score;
             setLocalStorage(name, storage);
         }
-        if (gameSet.mode=="Standart") counter.appleCount = 0;
+        if (gameSet.mode === "Standart") counter.appleCount = 0;
         getArea(freeLevel);
     }
 }
@@ -327,7 +326,7 @@ function setOptions() {
     KEY_FLAG = 2;
     CURRENT_FLAG = true;
     KEY_SPACE = false;
-    if (gameSet == freeLevel) {
+    if (gameSet === freeLevel) {
         snake.setHP = 1;
         gameSet.setSpeed = Math.floor(document.getElementById("speedValue").value);
         document.getElementById('options').hidden = false;
@@ -344,11 +343,11 @@ function setOptions() {
 }
 
 function createTable() {
-    for (var i = 0; i < gameSet.rows; i++) {
+    for (let i = 0; i < gameSet.rows; i++) {
         table.insertRow();
-        for (var j = 0; j < gameSet.cells; j++) {
+        for (let j = 0; j < gameSet.cells; j++) {
             table.rows[i].insertCell();
-            if (!!gameSet.tmp && gameSet.tmp[i][j] == 1) {
+            if (!!gameSet.tmp && gameSet.tmp[i][j] === 1) {
                 gameSet.crashBlocksArray.push({
                     row: i,
                     cell: j
@@ -359,7 +358,7 @@ function createTable() {
 }
 
 function createCrashBlocks() {
-    for (var i = 0; i < gameSet.crashBlocksArray.length; i++) {
+    for (let i = 0; i < gameSet.crashBlocksArray.length; i++) {
         if (!!table.rows[gameSet.crashBlocksArray[i].row])
             table.rows[gameSet.crashBlocksArray[i].row].cells[gameSet.crashBlocksArray[i].cell].className = "crashBlock";
     }
@@ -367,7 +366,7 @@ function createCrashBlocks() {
 
 function getArea(level) {
     if (CURRENT_FLAG) {
-        for (var i = 0; i < gameSet.rows; i++) {
+        for (let i = 0; i < gameSet.rows; i++) {
             table.deleteRow(0);
         }
         CURRENT_FLAG = false;
@@ -382,30 +381,30 @@ function getArea(level) {
 }
 
 onkeydown = function (e) {
-    var key = e.keyCode;
+    let key = e.keyCode;
     if (KEY_FLAG && KEY_SPACE) {
-        if (key == 37 && drive[drive.length - 1] != 3) {
+        if (key === 37 && drive[drive.length - 1] !== 3) {
             drive.push(1);
             tmpDrive.push(drive[0]);
-        } else if (key == 38 && drive[drive.length - 1] != 4) {
+        } else if (key === 38 && drive[drive.length - 1] !== 4) {
             drive.push(2);
             tmpDrive.push(drive[0]);
-        } else if (key == 39 && drive[drive.length - 1] != 1) {
+        } else if (key === 39 && drive[drive.length - 1] !== 1) {
             drive.push(3);
             tmpDrive.push(drive[0]);
-        } else if (key == 40 && drive[drive.length - 1] != 2) {
+        } else if (key === 40 && drive[drive.length - 1] !== 2) {
             drive.push(4);
             tmpDrive.push(drive[0]);
         }
     }
-    if (drive.length == 2 && KEY_FLAG != 1) {
+    if (drive.length === 2 && KEY_FLAG !== 1) {
         drive.shift();
         tmpDrive.shift();
     }
     KEY_FLAG--;
-    if (key == 32 && !KEY_SPACE) {
+    if (key === 32 && !KEY_SPACE) {
         e.preventDefault();
-        if (gameSet == freeLevel) gameSet.setSpeed = Math.floor(document.getElementById("speedValue").value);
+        if (gameSet === freeLevel) gameSet.setSpeed = Math.floor(document.getElementById("speedValue").value);
         start();
         document.getElementById('caption').hidden = true;
         document.getElementById('options').hidden = true;
@@ -414,19 +413,19 @@ onkeydown = function (e) {
 
 function setLocalStorage(name, value) {
 	obj = [];
-	var tmpCount=0;
-    for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        var el = JSON.parse(localStorage.getItem(key));
-        if (name+"|"+value.mode==key){
-        	if (gameSet=="Free Game" && score>el.score){
+	let tmpCount=0;
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        let el = JSON.parse(localStorage.getItem(key));
+        if (name+"|"+value.mode === key){
+        	if (gameSet === "Free Game" && score>el.score){
     			localStorage.setItem(name+"|"+value.mode, JSON.stringify(value));
-        	} else if (gameSet!="Free Game" && gameSet.numberLevel>=el.level && score>el.score){
+        	} else if (gameSet!=="Free Game" && gameSet.numberLevel>=el.level && score>el.score){
         		localStorage.setItem(name+"|"+value.mode, JSON.stringify(value));
         	}
         } else tmpCount+=1;
     }
-    if (tmpCount==localStorage.length) localStorage.setItem(name+"|"+value.mode, JSON.stringify(value));
+    if (tmpCount===localStorage.length) localStorage.setItem(name+"|"+value.mode, JSON.stringify(value));
 }
 
 function getLocalStorage() {
@@ -434,11 +433,11 @@ function getLocalStorage() {
 		    	localStorage.removeItem(obj[obj.length-1].name);
 		    	delete obj[obj.length-1];
 	}
-    var tmpStr = "RATING FOR ";
+    let tmpStr = "RATING FOR ";
     obj = [];
-    for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        var el = JSON.parse(localStorage.getItem(key));
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        let el = JSON.parse(localStorage.getItem(key));
         obj.push({
             name: key,
             level: el.level,
@@ -449,33 +448,32 @@ function getLocalStorage() {
     if (!window.gameSet) {
         alert("Press New Game");
     } else {
-        if (gameSet.numberLevel != "Free Game") {
-        	//obj;
+        if (gameSet.numberLevel !== "Free Game") {
+
             obj = obj.filter(function (el) {
-                return el.level != "Free Game"
+                return el.level !== "Free Game"
             }).sort(function (a, b) {
 		        if (a.level > b.level) return 1;
 		        if (a.level < b.level) return -1;
 		        return 0;
 		    }).reverse();
             if (localStorage.length>20)  del();
-            tmpStr+="ARCADE\n"
-            for (var i = 0; i < obj.length; i++) {
-                tmpStr += "" + (i + 1) +
-                    ")Name: " + obj[i].name +
+            tmpStr+="ARCADE\n";
+            for (let i = 0; i < obj.length; i++) {
+                tmpStr += "" + (i + 1) + ") Name: " + obj[i].name +
                     ", MaxLevel: " + obj[i].level +
                     ", SCORE: " + obj[i].score + "\n----------\n";
             }
         } else {
             obj = obj.filter(function (el) {
-                return el.level == "Free Game"
+                return el.level === "Free Game"
             }).sort(function (a, b) {
 		        if (a.score > b.score) return 1;
 		        if (a.score < b.score) return -1;
 		        return 0;
 		    }).reverse();
             if (localStorage.length>20) del();
-            tmpStr+="FREE GAME\n"
+            tmpStr+="FREE GAME\n";
             for (var i = 0; i < obj.length; i++) {
                 tmpStr += "" + (i + 1) +
                     ")Name: " + obj[i].name +
@@ -488,20 +486,18 @@ function getLocalStorage() {
 }
 
 document.getElementById("options").addEventListener('change', function (e) {
-    //if (gameSet.numberLevel != "Free Game"){
     var index = e.srcElement.selectedIndex;
     if (!index) {
         AUTOSPEED_MODE = false;
         gameSet.mode = "Standart";
         document.getElementById('mode').innerHTML = "Mode: " + gameSet.mode;
-    } else if (index == 1) {
+    } else if (index === 1) {
         AUTOSPEED_MODE = true;
         gameSet.mode = "AutoSpeed";
         document.getElementById('mode').innerHTML = "Mode: " + gameSet.mode;
-    } else if (index == 2) setBlocksFreeLevel();
+    } else if (index === 2) setBlocksFreeLevel();
     else {
         gameSet.crashBlocksArray.length = 0;
-        //getArea(freeLevel);
+        getArea(freeLevel);
     }
-    //}
 });
