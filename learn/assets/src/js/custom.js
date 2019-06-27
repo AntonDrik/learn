@@ -1,18 +1,16 @@
 var CONST_TEXT_EQUAL = "Ничья";
 var CONST_TEXT_WIN = "Победил: ";
 var CONST_TEXT_CHOOSE = "Выбрано: ";
-var playerEl;
-var clickedEl;
 var gameObj = { // игровой объект
 	players: [ // массив игроков
 		player1 = {name: "Игрок 1"},
 		player2 = {name: "Игрок 2"},
 	],
 	compare: function () { //сравнение элементов
-		let concatResult = (this.players[0].choose / this.players[1].choose).toFixed(1); //делю элементы чтобы получить уникальное значение
+		let concatResult = +(this.players[0].choose / this.players[1].choose).toFixed(1); //делю элементы чтобы получить уникальное значение
 		if (this.players[0].choose === this.players[1].choose) // если элементы равны - ничья
 			return CONST_TEXT_EQUAL;
-		else if (concatResult == 0.5 || concatResult == 0.7 || concatResult == 3.0) //проверка уникальных значений для первого игрока, если равно - первый игрок победил
+		else if (concatResult === 0.5 || concatResult === 0.7 || concatResult === 3.0) //проверка уникальных значений для первого игрока, если равно - первый игрок победил
 			return CONST_TEXT_WIN + this.players[0].name;
 		else // иначе - победил второй игрок
 			return CONST_TEXT_WIN + this.players[1].name;
@@ -30,7 +28,8 @@ var gameObj = { // игровой объект
 
 $(document).ready(function() {
 
-	playerEl = $('.btn__player'); // массив кнопок
+	var playerEl = $('.btn__player'); // массив кнопок
+	var clickedEl;
 
 	let i = 0;
 	for (let item of playerEl){ //прохожу по кнопкам и присваиваю каждой кнопке свое имя из массива игроков
@@ -38,7 +37,7 @@ $(document).ready(function() {
 		i++;
 	}
 
-	$('.btn__player').magnificPopup({
+	playerEl.magnificPopup({
 		type: 'inline',
 
 		fixedContentPos: false,
@@ -55,8 +54,8 @@ $(document).ready(function() {
 	});
 
 
-	$('.btn__player').on("click", function () {
-		clickedEl = $('.btn__player').index(this); // запоминаю игрока который делает выбор
+	playerEl.on("click", function () {
+		clickedEl = playerEl.index(this); // запоминаю игрока который делает выбор
 		$('#playerName').text(gameObj.players[clickedEl].name); // вывожу имя игрока во всплывающее окно
 	});
 
@@ -69,7 +68,6 @@ $(document).ready(function() {
 				$('.players__winner').text(gameObj.compare());
 				gameObj.removeChoose();
 			}
-
 			$.magnificPopup.close();
 	})
 });
