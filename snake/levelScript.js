@@ -5,7 +5,7 @@ var freeLevel = {
 	speed: 50,
 	set setSpeed(x) {
 		if(x>20 && x<=150) this.speed = 200-(x);
-		else alert("This value must be >20 and <151")
+		else alert("This value must be >20 and <151");
 		document.getElementById("speed").innerHTML = "Speed: "+(200-(gameSet.speed));
 	},
 	crashBlocksArray: [],
