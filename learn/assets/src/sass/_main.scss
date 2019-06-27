@@ -1,12 +1,13 @@
 .players{
   padding-left: 10px;
-  &-info{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
-
+.player{
+  display: none;
+  align-items: center;
+}
+.active_player{
+  display: flex;
+}
 .items{
   display: flex;
   justify-content: space-between;
