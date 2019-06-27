@@ -11,7 +11,7 @@ var snake = {
     body: [],
     head: 0,
     tail: 0,
-    hp: 3,
+    hp: 4,
     set setHP(s) {
         this.hp = s;
         document.getElementById("hp").innerHTML = "HP: " + this.hp;
@@ -47,8 +47,6 @@ function getSnakeCell(str) {
 function start() {
     KEY_SPACE = true;
     gameIteration = setInterval(function () {
-        //---------УПРАВЛЕНИЕ И ОБРАБОТКА ПЕРЕХОДОВ СКВОЗЬ СТЕНЫ-------------
-        //Влево
         if (drive[0] == 1 && snake.head.cell)
             snake.body.unshift({
                 row: snake.head.row,
@@ -60,7 +58,6 @@ function start() {
                 cell: gameSet.cells - 1
             });
 
-        //Вверх
         if (drive[0] == 2 && snake.head.row)
             snake.body.unshift({
                 row: snake.head.row - 1,
@@ -72,7 +69,6 @@ function start() {
                 cell: snake.head.cell
             });
 
-        //Вправо
         if (drive[0] == 3 && snake.head.cell != gameSet.cells - 1)
             snake.body.unshift({
                 row: snake.head.row,
@@ -84,7 +80,7 @@ function start() {
                 cell: 0
             });
 
-        //Вниз		
+        //пїЅпїЅпїЅпїЅ		
         if (drive[0] == 4 && snake.head.row != gameSet.rows - 1)
             snake.body.unshift({
                 row: snake.head.row + 1,
@@ -150,7 +146,7 @@ function printSnake() {
     getSnakeCell("tail").style.backgroundImage = "url('" + imgArrayTail[(snake.tail.drive) - 1] + "')";
 }
 
-function setApple() { //Установка яблок
+function setApple() { //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     var appleMas = getRandomCell();
     if (score != gameSet.score - 1) table.rows[appleMas[0]].cells[appleMas[1]].className = "appleElem";
     else table.rows[appleMas[0]].cells[appleMas[1]].className = "lastAppleElem";
@@ -186,10 +182,10 @@ function getRandomCell() {
     return mas;
 }
 
-function checkNextStep() { //Общая проверка следующего шага
+function checkNextStep() {
     var el = getSnakeCell("head").className;
     var elStyle = getSnakeCell("head").style.backgroundImage;
-    //Проверка на съедание яблока
+
     if (el == "appleElem" || el == "lastAppleElem") {
         getSnakeCell("head").className = "";
         document.getElementById("score").innerHTML = "Score:" + String(score += 1) + "|" + gameSet.score;
@@ -225,7 +221,7 @@ function checkNextStep() { //Общая проверка следующего шага
         getSnakeCell("head").className = "";
         snake.setHP = snake.hp + 1;
     }
-    //проверка на столкновение с барьером и телом
+
     else if (el == "crashBlock" || elStyle != "") {
         stop();
         return 1;
