@@ -95,7 +95,7 @@ function createTODOElem(TaskText){
 
 mainInput.addEventListener("keyup", function () {
 
-    if (this.value==""){
+    if (this.value === ""){
         btnAdd.disabled = true;
     } else {
         btnAdd.disabled = false;
