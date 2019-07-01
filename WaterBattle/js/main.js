@@ -82,40 +82,82 @@ const ships = {
         let i = 0;
          while (i<this.shipType.length){
             let shipsCount = prompt(this.shipType[i], "");
-            if (!shipsCount) alert('Edit number');
+            if (!shipsCount) shipsCount = 1;
             else{
-                while (shipsCount>=0){
+                while (shipsCount>0){
+                	this.mas.push({
+						name: this.shipType[i],
+						location: this.getRandomLocation(i+1)
+                	});
 
-                    // let tmp = this.getRandomLocation();
-                    // this.mas.push(tmp);
+                	this.mas[this.mas.length-1].location.forEach(item => {
+                		this.table.rows[item.row].cells[item.cell].style.backgroundColor = "red";
+                	});
                     shipsCount--;
                 }
-
             } i++;
         }
     },
-    getRandomLocation(shipLength, direction){
-        let tmpRow, tmpCell = null;
-        if (direction) {
-            tmpRow = Math.floor(Math.random()*this.allLocation.length-shipLength);
-            tmpCell = Math.floor(Math.random()*this.allLocation.length);
-        }
-        else {
-            tmpRow = Math.floor(Math.random()*this.allLocation.length);
-            tmpCell = Math.floor(Math.random()*this.allLocation.length-shipLength);
-        }
+    getRandomLocation(shipLength = 1){
+        let randomCell = null;
+        let location = [];
 
-        let isTrue = true;
-        while (isTrue){
+        while (true){
+
+        	let direction = Math.floor(Math.random()*2);
+
+        	if (direction) {
+            	randomCell = {
+            		row: Math.floor(Math.random()*(this.allLocation.length-(shipLength-1))),
+            		cell: Math.floor(Math.random()*this.allLocation.length)
+            	};
+        	} else {
+        		randomCell = {
+        			row: Math.floor(Math.random()*this.allLocation.length),
+        			cell: Math.floor(Math.random()*(this.allLocation.length-(shipLength-1)))
+        		}
+        	}
+
+        	location.length = 0;
             for (let i = 0; i < shipLength; i++){
-                if (this.allLocation[tmpRow][tmpCell]){
+                if (direction && !this.allLocation[randomCell.row+i][randomCell.cell]){
+                	location.push({row: randomCell.row+i, cell: randomCell.cell})
 
+                } else if (!direction && !this.allLocation[randomCell.row][randomCell.cell+i]) {
+                	location.push({row: randomCell.row, cell: randomCell.cell+i})
                 }
-                if (direction) tmpRow++;
-                else tmpCell++;
+            }
+            if (location.length===shipLength){
+            	location.forEach(item => {
+            		// console.log('init coords: row -> '+ item.row +"; cell -> "+item.cell);
+            		// console.log('________________________________________');
+            		for (let i = item.row-1; i <= item.row+1; i++){
+            			for(let j = item.cell-1; j <= item.cell+1; j++){
+            				// console.log('iteration i['+i+']['+j+']');
+            				if(!!this.allLocation[i] && (typeof(this.allLocation[i][j]))!=='undefined'){
+            					// console.log('+++');
+            					this.allLocation[i][j] = 1;
+            					// if (i !== item.row && j !== item.cell) {
+            					// 	this.allLocation[i][j] = 2;
+            					// 	console.log('    -- 2');
+            					// } else if (i === item.row && j === item.cell) {
+            					// 	this.allLocation[i][j] = 1; 
+            					// 	console.log('    -- 1');	
+            					// }	          					
+            				}
+            			}
+            		}
+            		
+            	});
+            	break;
             }
         }
+        return location;
+    },
+    createLocationArea(){
+
     }
+
 };
 
 ships.__proto__ = GameArea;
