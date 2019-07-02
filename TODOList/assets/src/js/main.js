@@ -32,7 +32,7 @@ Object.defineProperty(TODOEditTask, "TODOListItem", {
         this.elem = value;
         this.TODOText = this.elem.children[0];
         this.EditBox = this.elem.children[1];
-}
+    }
 });
 
 function createDom(tag, className, value){
@@ -70,27 +70,25 @@ function clickEvent(elem){
 }
 
 function createTODOElem(TaskText){
-    var TODOList = document.getElementById('list');
-        var TODOListItem = createDom('div', 'TODO__list-item hidden');
-            var TODOTask = createDom('div', 'TODO__task');
-                var TODOText = createDom('span', 'TODO__text', TaskText);
-                var TODOBtnBlock = createDom('div', 'TODO__btn-block');
-                    var TODOBtnDel = createDom('button', 'TODO__btn-delete TODO__btn-size btn');
-                    var TODOBtnEdit = createDom('button', 'TODO__btn-edit TODO__btn-size btn');
+    let TODOList = document.getElementById('list');
+        let TODOListItem = createDom('div', 'TODO__list-item hidden');
+            let TODOTask = createDom('div', 'TODO__task');
+                let TODOText = createDom('span', 'TODO__text', TaskText);
+                let TODOBtnBlock = createDom('div', 'TODO__btn-block');
+                    let TODOBtnDel = createDom('button', 'TODO__btn-delete TODO__btn-size btn');
+                    let TODOBtnEdit = createDom('button', 'TODO__btn-edit TODO__btn-size btn');
                 appendDom(TODOBtnBlock, TODOBtnDel, TODOBtnEdit);
             appendDom(TODOTask, TODOText, TODOBtnBlock);
 
-            var TODOEditTask = createDom('div', 'TODO__edit-task');
-                var TODOEditInput = createDom('input', 'TODO__edit-input');
-                var TODOBtnSave = createDom('button', 'TODO__btn-save');
+            let TODOEditTask = createDom('div', 'TODO__edit-task');
+                let TODOEditInput = createDom('input', 'TODO__edit-input');
+                let TODOBtnSave = createDom('button', 'TODO__btn-save');
             appendDom(TODOEditTask, TODOEditInput, TODOBtnSave);
         appendDom(TODOListItem, TODOTask, TODOEditTask);
         clickEvent(TODOListItem);
     TODOList.prepend(TODOListItem);
-    var time = setTimeout(function(){
-        TODOListItem.classList.remove('hidden');
-    }, 150);
 
+        // TODOListItem.classList.remove('hidden');
 }
 
 mainInput.addEventListener("keyup", function () {
