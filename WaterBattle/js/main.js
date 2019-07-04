@@ -1,12 +1,21 @@
 const shipsType = ['1 клеточный', '2 клеточный', '3 клеточный', '4 клеточный'];
 
+const colors = {
+    GRAY: 'gray',
+    RED: 'red',
+    GREEN: 'green',
+    DARK_RED: 'darkred'
+};
+
 class GameArea {
 	constructor(size){
 		this.areaSize = size;
 		this.score = null;
 		this.allLocation = [];
+		this.hitsLocation = [];
 		this.ships = [];
         this.table = null;
+        this.caption = null;
 		this.area = document.getElementById('gameArea');
 	}
 	createTable(){
@@ -14,28 +23,32 @@ class GameArea {
         tableBox.classList.add(this.name);
         this.table = document.createElement('table');
         this.table.classList.add('table');
-        let caption = document.createElement('div');
-        caption.classList.add('caption');
+        this.caption = document.createElement('div');
+        this.caption.classList.add('caption');
         for (let i = 0; i < this.areaSize; i++){
             this.table.insertRow();
             this.allLocation[i] = [];
             for (let j = 0; j < this.areaSize; j++){
                 this.table.rows[i].insertCell();
                 this.allLocation[i][j] = 0;
+                this.hitsLocation.push({
+                    row: i,
+                    cell: j
+                });
             }
         }
         tableBox.append(this.table);
-        tableBox.append(caption);
+        tableBox.append(this.caption);
         this.area.append(tableBox);
 	}
     createShip(shipLength = 1){
         let location = this.createShipLocation(shipLength);
-            if (location.length){
-                this.ships.push(new Ship(shipsType[shipLength-1], location));
-            }
+        if (location.length){
+            this.ships.push(new Ship(shipsType[shipLength-1], location));
+        }
+        return location;
     }
     createShipLocation(shipLength){
-        let randomCell = null;
         let location = [];
         let direction = Math.floor(Math.random()*2);
         let validLocation = this.getValidPoints(shipLength, direction);
@@ -48,9 +61,17 @@ class GameArea {
         validLocation = validLocation[Math.floor(Math.random()*validLocation.length)];
         for(let i = 0; i < shipLength; i++){
             if (direction){
-                location.push({row: validLocation.row, cell: validLocation.cell+i});
+                location.push({
+                    row: validLocation.row,
+                    cell: validLocation.cell+i,
+                    isHitted: false
+                });
             } else {
-                location.push({row: validLocation.row+i, cell: validLocation.cell});
+                location.push({
+                    row: validLocation.row+i,
+                    cell: validLocation.cell,
+                    isHitted: false
+                });
             }
         }
         this.pushShipLocationArea(location);
@@ -63,10 +84,9 @@ class GameArea {
                     if(!!this.allLocation[i] && (typeof(this.allLocation[i][j]))!=='undefined'){
                         if ((i !== item.row || j !== item.cell) && this.allLocation[i][j]!==1) {
                             this.allLocation[i][j] = 2;
-                            this.table.rows[i].cells[j].style.backgroundColor = 'gray';
                         } else if (i === item.row && j === item.cell) {
                             this.allLocation[i][j] = 1;
-                            this.table.rows[i].cells[j].style.backgroundColor = 'red';
+
                         }
                     }
                 }
@@ -102,19 +122,50 @@ class GameArea {
         return x;
     }
     setCaption(){
-        // this.mas.forEach( (item) => {
-            let x = [];
-        x.push(this.ships.reduce( (previous, current) => {
-            console.dir(previous.name+" "+ current.name);
-                if (previous.name === current.name){
-                    previous[current.count] +=1
+	    this.caption.innerHTML = "";
+        shipsType.forEach( (item) => {
+            let span = document.createElement('span');
+            span.innerHTML = `${item}: ${this.ships.filter( (ship) => ship.name === item).length}`;
+            this.caption.append(span);
+        });
+    }
+    getCellAroundHittedShip(row, cell){
+	    let isTrue = true;
+        while (isTrue){
+            let randCell = {
+                row: getRandInterval(row-1, row+2), // изменить на выбор ячеек "крестом"
+                cell: getRandInterval(cell-1, cell+2) // изменить на выбор ячеек "крестом"
+            };
+            // console.log(`Переданная ячейка: row: ${row} cell: ${cell}; новые координаты: row: ${randCell.row} cell: ${randCell.cell};
+            // диапазон: row:${row-1}-${row+2} cell: ${cell-1}-${cell+2}`);
+            if (randCell.row !== row  || randCell.cell !== cell){
+                if(!!this.allLocation[randCell.row] && typeof(this.allLocation[randCell.row][randCell.cell])!=='undefined' &&
+                    this.allLocation[randCell.row][randCell.cell]!==3){
+                    return randCell;
                 }
-                return current;
-        }));
-            // let span = document.createElement('span');
-            // span.innerHTML = item.name+": "+item.location.length;
-            // this.caption.append(span);
-        // });
+            }
+        }
+    }
+    hit(row, cell){
+	    // 0 - Ничего; {} - Попадание в одну клетку; 2 - Кобраль потоплен; 3 - Все корабли потоплены
+        if (this.allLocation[row][cell] === 1){
+            let isKill = [row, cell].drawHit(this.table, this.allLocation, this.ships);
+            if(isKill) {
+                this.setCaption();
+                if (!this.ships.length){
+                    return 3;
+                }
+                return 2;
+            }
+        return this.getCellAroundHittedShip(row, cell);
+        }
+        else {
+            [row, cell].drawMiss(this.table);
+            return 0;
+        }
+    }
+    winner(name){
+        alert(`${name} победил`);
     }
 }
 
@@ -122,8 +173,29 @@ class Computer extends GameArea{
     constructor(name ,size){
         super(size);
         this.name = name;
+        this.aroundHits = {
+            row: null,
+            cell: null
+        };
     }
-    
+    hit(row, cell, aroundHits){
+        if (super.hit(row, cell) === 3) return false;
+        if (aroundHits.row !== null){
+            return [aroundHits.row, aroundHits.cell];
+        }
+        else{
+            let randomIndex = Math.random()*this.hitsLocation.length;
+            let cellForHit = this.hitsLocation.slice(randomIndex,randomIndex+1);
+            this.hitsLocation.splice(randomIndex, 1);
+            return [cellForHit[0].row, cellForHit[0].cell];
+        }
+    }
+    winner(){
+        super.winner(this.name);
+        this.ships.forEach( (item) => {
+            item.location.drawShips(this.table, true);
+        });
+    }
 }
 
 class Player extends GameArea{
@@ -131,8 +203,12 @@ class Player extends GameArea{
         super(size);
         this.name = name;
     }
-    createLocation(){
-
+    createShip(shipLength = 1){
+        let ship = super.createShip(shipLength);
+        ship.drawShips(this.table);
+    }
+    winner() {
+        super.winner(this.name);
     }
 }
 
@@ -140,206 +216,98 @@ class Ship{
 	constructor(name, location){
 		this.name = name;
 		this.location = location;
-        this.count = 0;
-	}  
+	}
 }
+
+function getRandInterval (min, max){
+    return Math.floor(Math.random()* (max - min)) + min;
+}
+
+Array.prototype.drawShips = function(table, isHitted = false) {
+    this.forEach( (item) => {
+        if (isHitted) {
+            table.rows[item.row].cells[item.cell].style.backgroundColor = colors.DARK_RED;
+        } else {
+            table.rows[item.row].cells[item.cell].style.backgroundColor = colors.GREEN;
+        }
+    });
+};
+Array.prototype.drawHit = function(table, alllocation, ships) {
+
+    for (let i = 0; i < ships.length; i++){
+        let shipIndex  = null;
+        ships[i].location.forEach( (item, index) => {
+            if(item.row === this[0] && item.cell === this[1]) {
+                table.rows[item.row].cells[item.cell].style.backgroundColor = colors.RED;
+                alllocation[this[0]][this[1]] = 3;
+                shipIndex = index;
+            }
+        });
+        if (shipIndex !== null){
+            ships[i].location[shipIndex].isHitted = true;
+            let activeShipCell = ships[i].location.find (current => current.isHitted === false);
+            if ((typeof activeShipCell) === 'undefined'){
+                ships[i].location.drawShips(table, true);
+                ships.splice(i,1);
+                return true;
+            }
+            return false;
+        }
+    }
+};
+Array.prototype.drawMiss = function(table) {
+        table.rows[this[0]].cells[this[1]].style.backgroundColor = colors.GRAY;
+};
 
 document.getElementById('btnStart').addEventListener("click", function(){
 
     let areaSize = prompt("Введите размер поля", "");
-    if (!areaSize || areaSize<10) areaSize = 10;
+    // if (!areaSize || areaSize<10) areaSize = 10;
     computer = new Computer("Alpha",areaSize);
     player = new Player("Anton", areaSize);
     computer.createTable();
     player.createTable();
     // let maxShipCount = areaSize;
-    for (let i = 0; i < shipsType.length; i++){
+    for (let i = 0; i < 1; i++){
         // let shipsCount = prompt(`${shipsType[i]}: Введите количество. Осталось ${maxShipCount}`, "");
         // if (!+shipsCount) shipsCount = 1;
         // else if (+shipsCount>maxShipCount) shipsCount = maxShipCount;
-        for (let j = 0; j < 1+i; j++){
-            computer.createShip(4-i);
-            player.createShip(4-i);
+        for (let j = 0; j < 4+i; j++){
+            computer.createShip(2-i);
+            player.createShip(2-i);
         }
         // maxShipCount-=shipsCount;
         // if (!maxShipCount) break;
     }
+    computer.setCaption();
+    player.setCaption();
+    computer.table.onclick = function (element) {
 
+        let row = element.target.parentNode.rowIndex;
+        let cell = element.target.cellIndex;
+
+        let coords = computer.hit(row, cell, computer.aroundHits);
+
+        if (!coords) player.winner();
+
+        setTimeout(() => {
+            let hitStatus = player.hit(coords[0], coords[1]); // 0 - Промах; {} - Попадание в корабль; 2 - Кобраль потоплен; 3 - Все корабли потоплены
+            if(hitStatus === 3){
+                computer.winner();
+            }
+            else if (hitStatus === 2){
+                alert('корабль потоплен');
+                computer.aroundHits.row = null;
+                computer.aroundHits.cell = null;
+            }
+            else if (hitStatus.hasOwnProperty('row')){
+                alert('попадание');
+                computer.aroundHits.row = hitStatus.row;
+                computer.aroundHits.cell = hitStatus.cell;
+            }
+            else if (hitStatus === 0 && computer.aroundHits.row !== null) {
+                alert('промах, но корабль схвачен');
+            }
+        },100)
+    }
 });
-
-
-// const gameArea = { // Объект игровая область
-
-//     areaSize: null,
-//     score: null,
-//     allLocation: [],
-//     table: document.getElementById('area'),
-//     caption: document.getElementById('caption'),
-
-//     createTable(){ // Создание таблицы и матрицы с указанными размерами
-//         this.areaSize = 10;
-//         for (let i = 0; i < this.areaSize; i++){
-//             this.table.insertRow();
-//             this.allLocation[i] = [];
-//             for (let j = 0; j < this.areaSize; j++){
-//                 this.table.rows[i].insertCell();
-//                 this.allLocation[i][j] = 0;
-//             }
-//         }
-//     }
-// };
-
-// Object.defineProperty(gameArea, "size", { // Устанавливаю сеттер-свойство для свойства gameArea.areaSize
-//     set: function (value) {
-//         this.areaSize = value;
-//     }
-// });
-
-// const ships = { // объект корабли
-//     __proto__: gameArea, // Наследование от gameArea, нужно для получения значений: areaSize, score, allLocation, table, caption.
-//                          // Возможно не стоит передавать весь объект, а только нужные свойства. Не знаю как правильно реализовать.
-
-//     mas: [ // Массив с кораблями. Возможно масив перегружен, неправильная структура. Слишком большая вложенность.
-//         {name: '1 клеточный', location: []},
-//         {name: '2 клеточный', location: []},
-//         {name: '3 клеточный', location: []},
-//         {name: '4 клеточный', location: []}
-//         ],
-//     createShips(){ // Создание корабля
-//         let i = this.mas.length-1;
-//          shipsLoop: while (i>-1){ // Цикл по всем типам кораблей.
-//                                   // Поставил метку в случае выхода из цикла если нет клеток для кораблей, но корабли ещё есть.
-//             let shipsCount = prompt(this.mas[i].name+": Введите количество", ""); //поочередно запрашиваю количество всех 4 кораблей
-//             if (!shipsCount) shipsCount = 1; // Проверка на ввод данных
-//             else{
-//                 while (shipsCount>0){
-//                     let tmpLocation = this.getRandomLocation(i+1); // Назначаю кораблю координаты и заношу его в матрицу, возвращаю полученные координаты корабля
-//                     if (!tmpLocation.length) break shipsLoop; // Выход из цикла в случае отсутствия ячеек
-//                 	this.mas[i].location.push(tmpLocation); // Заношу координаты корабля в массив всех кораблей ships.mas
-//                     shipsCount--;
-//                 }
-//             } i--;
-//         }
-//         this.setCaption(); // устанавливаю блок caption с информацией о количестве кораблей
-//     },
-//     setCaption(){
-//         this.mas.forEach( (item) => {
-//             let span = document.createElement('span');
-//             span.innerHTML = item.name+": "+item.location.length;
-//             this.caption.append(span);
-//         });
-//     },
-//     getRandomLocation(shipLength = 1){ // Назначение рандомных ячеек кораблю.
-//                                        // Возможно функция перегружена.
-//                                        // Также, вероятно, неправильно реализована функция выхода из цикла при отсутствии свободных ячеек.
-//         let randomCell = null;
-//         let location = [];
-//         let breakCounter = 0;
-
-//         while (true){
-
-//             if (breakCounter>60) break; // Функция выхода из цикла при отсутствии свободных ячеек. Если в течении 60 итераций не найдена рандомная клетка - выход из цикла.
-//             breakCounter++;             // Реализация по вопросом.
-
-//             let direction = Math.floor(Math.random()*2); // Направление корабля. 0 - Горизонтально, 1 - Вертикально
-//             let validlocation = this.getValidlocation(shipLength, direction);
-//             validlocation = validlocation[Math.floor(Math.random()*validlocation.length)];
-//             if (!!!validlocation) break;
-//             randomCell = {
-//                 row: validlocation.i,
-//                 cell: validlocation.j
-//             };
-
-//         	location.length = 0;
-//             for (let i = 0; i < shipLength; i++){
-//                 if (direction && !this.allLocation[randomCell.row+i][randomCell.cell]){
-//                 	location.push({row: randomCell.row+i, cell: randomCell.cell})
-//                 } else if (!direction && !this.allLocation[randomCell.row][randomCell.cell+i]) {
-//                 	location.push({row: randomCell.row, cell: randomCell.cell+i})
-//                 }
-//             }
-//             if (location.length===shipLength){
-//                 this.pushLocationArea(location); //записываю в матрицу координаты корабля и область вокруг созданного корабля
-//             	break;
-//             }
-//         }
-//         return location;
-//     },
-//     pushLocationArea(location){
-//         location.forEach(item => {
-
-//             for (let i = item.row-1; i <= item.row+1; i++){
-//                 for(let j = item.cell-1; j <= item.cell+1; j++){
-//                     if(!!this.allLocation[i] && (typeof(this.allLocation[i][j]))!=='undefined'){
-//                         if ((i !== item.row || j !== item.cell) && this.allLocation[i][j]!==1) {
-//                             this.allLocation[i][j] = 2;
-//                         } else if (i === item.row && j === item.cell) {
-//                             this.allLocation[i][j] = 1;
-//                         }
-//                     }
-//                 }
-//             }
-
-//         });
-//     },
-//     getValidlocation(shipLength, direction){
-//         let x = [];
-//         for (let i = 0; i < 10; i++){
-//             for (let j = 0; j < 10; j++){
-//                 if(!this.allLocation[i][j]){
-//                     if (direction && i<=this.areaSize-(shipLength)){
-//                         x.push({i: i, j: j});
-//                     }
-//                     if (!direction && j<=this.areaSize-(shipLength)) {
-//                         x.push({i: i, j: j});
-//                     }
-
-//                 }
-//             }
-//         }
-//         return x;
-//     },
-//     hit(element, row, cell) {
-//         let locationIndex = 0;
-//         let isTrue = false;
-//         this.mas.forEach((item, index) => {
-//             item.location.forEach((locItem, index) => {
-//                 for (let i = 0; i < locItem.length; i++) {
-//                     if (locItem[i].row === row && locItem[i].cell === cell){
-//                         locItem.splice(i,1);
-//                     }
-//                 }
-//                 if (!locItem.length){
-//                     isTrue = true;
-//                     locationIndex = index;
-//                 }
-//             });
-//             if (isTrue) {
-//                 item.location.splice(locationIndex,1);
-//                 this.setCaption();
-//                 isTrue = false;
-//             }
-//             element.style.backgroundColor = 'red';
-//         });
-//         this.checkWin();
-//     },
-//     missed(element, row, cell){
-//         this.score+=1;
-//         element.style.backgroundColor = 'gray';
-//     },
-//     checkWin(){
-//         let x = this.mas.filter( (item) => item.location.length!==0);
-//         if (!x.length) alert('Win! You score: '+this.score+" hits");
-//     }
-// };
-
-// gameArea.table.onclick = (event) => {
-//     let el = event.target;
-//     let row = el.parentNode.rowIndex;
-//     let cell = el.cellIndex;
-//     if (gameArea.allLocation[row][cell] === 0 || gameArea.allLocation[row][cell] === 2){
-//         ships.missed(el, row, cell);
-//     } else if (gameArea.allLocation[row][cell] === 1){
-//         ships.hit(el, row, cell);
-//     }
-// };

@@ -6,7 +6,7 @@
 	padding: 20px;
 }
 
-#caption{
+.caption{
     display: flex;
     flex-direction: column;
 }
