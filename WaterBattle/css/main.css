@@ -1,11 +1,21 @@
-#area{
-    border-spacing: 0px;
-    border-collapse: collapse;
+#gameArea{
+	display: flex;
 }
+
+#gameArea>div{
+	padding: 20px;
+}
+
 #caption{
     display: flex;
     flex-direction: column;
 }
+
+table{
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
 td {
     border: 1px solid black;
     width: 40px;
