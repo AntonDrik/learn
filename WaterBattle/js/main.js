@@ -7,6 +7,13 @@ const colors = {
     DARK_RED: 'darkred'
 };
 
+const cellAroundShip = {
+	catchedRow: null,
+	catchedCell: null,
+	aroundRow: null,
+	aroundCell: null
+};
+
 class GameArea {
 	constructor(size){
 		this.areaSize = size;
@@ -129,27 +136,9 @@ class GameArea {
             this.caption.append(span);
         });
     }
-    getCellAroundHittedShip(row, cell){
-	    let isTrue = true;
-        while (isTrue){
-            let randCell = {
-                row: getRandInterval(row-1, row+2), // изменить на выбор ячеек "крестом"
-                cell: getRandInterval(cell-1, cell+2) // изменить на выбор ячеек "крестом"
-            };
-            // console.log(`Переданная ячейка: row: ${row} cell: ${cell}; новые координаты: row: ${randCell.row} cell: ${randCell.cell};
-            // диапазон: row:${row-1}-${row+2} cell: ${cell-1}-${cell+2}`);
-            if (randCell.row !== row  || randCell.cell !== cell){
-                if(!!this.allLocation[randCell.row] && typeof(this.allLocation[randCell.row][randCell.cell])!=='undefined' &&
-                    this.allLocation[randCell.row][randCell.cell]!==3){
-                    return randCell;
-                }
-            }
-        }
-    }
     hit(row, cell){
-	    // 0 - Ничего; {} - Попадание в одну клетку; 2 - Кобраль потоплен; 3 - Все корабли потоплены
         if (this.allLocation[row][cell] === 1){
-            let isKill = [row, cell].drawHit(this.table, this.allLocation, this.ships);
+            let isKill = [row, cell].drawHit(this.table, this.allLocation, this.hitsLocation, this.ships);
             if(isKill) {
                 this.setCaption();
                 if (!this.ships.length){
@@ -157,15 +146,15 @@ class GameArea {
                 }
                 return 2;
             }
-        return this.getCellAroundHittedShip(row, cell);
+        return 1;
         }
         else {
-            [row, cell].drawMiss(this.table);
+            [row, cell].drawMiss(this.table, this.allLocation);
             return 0;
         }
     }
     winner(name){
-        alert(`${name} победил`);
+        alert(`${name} проиграл`);
     }
 }
 
@@ -173,21 +162,20 @@ class Computer extends GameArea{
     constructor(name ,size){
         super(size);
         this.name = name;
-        this.aroundHits = {
-            row: null,
-            cell: null
-        };
     }
-    hit(row, cell, aroundHits){
-        if (super.hit(row, cell) === 3) return false;
-        if (aroundHits.row !== null){
-            return [aroundHits.row, aroundHits.cell];
-        }
-        else{
-            let randomIndex = Math.random()*this.hitsLocation.length;
+    hit(row, cell){
+    	let hitStatus = super.hit(row, cell); // 0 - промах; 1 - попадание в корабль; 2 - кобраль потоплен; 3 - конец игры.
+    	if (hitStatus === 3){ // конец игры
+    		this.winner(this.name);
+    	}
+        if (cellAroundShip.aroundRow !== null){
+        	this.hitsLocation.delHitsLocation(cellAroundShip.aroundRow, cellAroundShip.aroundCell);
+        	return [cellAroundShip.aroundRow, cellAroundShip.aroundCell];
+        } else {
+        	let randomIndex = Math.random()*this.hitsLocation.length;
             let cellForHit = this.hitsLocation.slice(randomIndex,randomIndex+1);
             this.hitsLocation.splice(randomIndex, 1);
-            return [cellForHit[0].row, cellForHit[0].cell];
+            return [cellForHit[0].row, cellForHit[0].cell];	
         }
     }
     winner(){
@@ -206,6 +194,43 @@ class Player extends GameArea{
     createShip(shipLength = 1){
         let ship = super.createShip(shipLength);
         ship.drawShips(this.table);
+    }
+    hit(row, cell){
+    	let hitStatus = super.hit(row, cell); // 0 - промах; 1 - попадание в корабль; 2 - кобраль потоплен; 3 - конец игры.
+    	if (!hitStatus && cellAroundShip.aroundRow !== null){ //промах
+    		// alert('Промах, но корабль захвачен');
+    		return this.getCellAroundHittedShip(cellAroundShip.catchedRow, cellAroundShip.catchedCell);
+    	}
+    	else if (hitStatus === 1){ //попадание в корабль
+    		// alert('Попадание, кобраль захвачен');
+    		cellAroundShip.catchedRow = row;
+    		cellAroundShip.catchedCell = cell;
+    		return this.getCellAroundHittedShip(row, cell);
+    	}
+    	else if (hitStatus === 2){ // корабль потоплен
+    		// alert('Корабль потоплен');
+    		return 2;
+    	}
+    	else if (hitStatus === 3){ // конец игры
+    		this.winner(this.name);
+    	}
+    }
+    getCellAroundHittedShip(row, cell){
+	    let isTrue = true;
+        while (isTrue){
+            let randCell = {
+                row: getRandInterval(row-1, row+2), // изменить на выбор ячеек "крестом"
+                cell: getRandInterval(cell-1, cell+2) // изменить на выбор ячеек "крестом"
+            };
+            // console.log(`Переданная ячейка: row: ${row} cell: ${cell}; новые координаты: row: ${randCell.row} cell: ${randCell.cell};
+            // диапазон: row:${row-1}-${row+2} cell: ${cell-1}-${cell+2}`);
+            if (randCell.row !== row  || randCell.cell !== cell){
+                if(!!this.allLocation[randCell.row] && typeof(this.allLocation[randCell.row][randCell.cell])!=='undefined' &&
+                    this.allLocation[randCell.row][randCell.cell]!==3){
+                    return randCell;
+                }
+            }
+        }
     }
     winner() {
         super.winner(this.name);
@@ -232,17 +257,19 @@ Array.prototype.drawShips = function(table, isHitted = false) {
         }
     });
 };
-Array.prototype.drawHit = function(table, alllocation, ships) {
 
+Array.prototype.drawHit = function(table, allLocation, location, ships) {
+	location.delHitsLocation(cellAroundShip.aroundRow, cellAroundShip.aroundCell);
     for (let i = 0; i < ships.length; i++){
         let shipIndex  = null;
         ships[i].location.forEach( (item, index) => {
             if(item.row === this[0] && item.cell === this[1]) {
                 table.rows[item.row].cells[item.cell].style.backgroundColor = colors.RED;
-                alllocation[this[0]][this[1]] = 3;
+                allLocation[this[0]][this[1]] = 3;
                 shipIndex = index;
             }
         });
+        
         if (shipIndex !== null){
             ships[i].location[shipIndex].isHitted = true;
             let activeShipCell = ships[i].location.find (current => current.isHitted === false);
@@ -255,9 +282,22 @@ Array.prototype.drawHit = function(table, alllocation, ships) {
         }
     }
 };
-Array.prototype.drawMiss = function(table) {
-        table.rows[this[0]].cells[this[1]].style.backgroundColor = colors.GRAY;
+
+Array.prototype.drawMiss = function(table, allLocation) {
+    table.rows[this[0]].cells[this[1]].style.backgroundColor = colors.GRAY;
+    allLocation[this[0]][this[1]] = 3;
 };
+
+Array.prototype.delHitsLocation = function(row, cell){
+	let findIndex = 0;
+    for (let i = 0; i < this.length; i++){
+        if (this[i].row === row && this[i].cell === cell){
+        	findIndex = i;
+        	break;
+        } 	
+    }
+    this.splice(findIndex, 1);
+}
 
 document.getElementById('btnStart').addEventListener("click", function(){
 
@@ -286,27 +326,18 @@ document.getElementById('btnStart').addEventListener("click", function(){
         let row = element.target.parentNode.rowIndex;
         let cell = element.target.cellIndex;
 
-        let coords = computer.hit(row, cell, computer.aroundHits);
-
-        if (!coords) player.winner();
+        let coords = computer.hit(row, cell); // получение рандомных координат для Player
 
         setTimeout(() => {
             let hitStatus = player.hit(coords[0], coords[1]); // 0 - Промах; {} - Попадание в корабль; 2 - Кобраль потоплен; 3 - Все корабли потоплены
-            if(hitStatus === 3){
-                computer.winner();
-            }
-            else if (hitStatus === 2){
-                alert('корабль потоплен');
-                computer.aroundHits.row = null;
-                computer.aroundHits.cell = null;
-            }
-            else if (hitStatus.hasOwnProperty('row')){
-                alert('попадание');
-                computer.aroundHits.row = hitStatus.row;
-                computer.aroundHits.cell = hitStatus.cell;
-            }
-            else if (hitStatus === 0 && computer.aroundHits.row !== null) {
-                alert('промах, но корабль схвачен');
+            if (hitStatus === 2){
+            	for (let key in cellAroundShip){
+            		cellAroundShip[key] = null;
+            	}
+            } 
+            else if (typeof (hitStatus) === 'object' && hitStatus.hasOwnProperty('row')){
+            	cellAroundShip.aroundRow = hitStatus.row;
+            	cellAroundShip.aroundCell = hitStatus.cell;
             }
         },100)
     }
