@@ -1,31 +1,41 @@
-const shipsType = ['1 клеточный', '2 клеточный', '3 клеточный', '4 клеточный'];
+const shipsType = ['1 клеточный', '2 клеточный', '3 клеточный', '4 клеточный']; // Массив с типами кораблей
 
-const colors = {
+const colors = { // Обект с цветами
     GRAY: 'gray',
     RED: 'red',
     GREEN: 'green',
     DARK_RED: 'darkred'
 };
 
-const cellAroundShip = {
-	catchedRow: null,
-	catchedCell: null,
-	aroundRow: null,
-	aroundCell: null
+const focusedShip = { // Объект текущего корабля который расстреливает компьютер.
+                      // Содержит область в которой находится корабль, и рандомную координату этой обалсти
+    currentRow: null,
+    currentCell: null,
+    location: []
 };
 
-class GameArea {
+class GameArea { // Игровая область. Содержит
+                                        // Свойства:
+                                            // HTML таблицу со всеми кораблями игрока/компьютера и HTML блок с отображением текущего количества кораблей
+                                            // Матричное представление таблицы с кораблями и областью вокруг них
+                                        // Методы:
+                                            // Создание таблицы и матрицы createTable()
+                                            // Создание корабля: createShip(), createShipLocation(), getValidPoints()
+                                            // Создание блок с информацией о количестве кораблей setCaption()
+                                            // Ход игрока/компьютера
+                                            // Вывод сообщения о победе winner()
+
 	constructor(size){
 		this.areaSize = size;
-		this.score = null;
 		this.allLocation = [];
-		this.hitsLocation = [];
 		this.ships = [];
         this.table = null;
         this.caption = null;
 		this.area = document.getElementById('gameArea');
 	}
-	createTable(){
+
+
+	createTable(){ // Создание таблицы. Также создает матрицу по размеру таблицы и заполняет её нулями.
         let tableBox = document.createElement('div');
         tableBox.classList.add(this.name);
         this.table = document.createElement('table');
@@ -38,35 +48,40 @@ class GameArea {
             for (let j = 0; j < this.areaSize; j++){
                 this.table.rows[i].insertCell();
                 this.allLocation[i][j] = 0;
-                this.hitsLocation.push({
-                    row: i,
-                    cell: j
-                });
             }
         }
         tableBox.append(this.table);
         tableBox.append(this.caption);
         this.area.append(tableBox);
 	}
-    createShip(shipLength = 1){
-        let location = this.createShipLocation(shipLength);
+
+
+    createShip(shipLength = 1){ // Создание корабля. Входной параметр - длина корабля
+        let location = this.createShipLocation(shipLength); // Получаем рандомную и ВАЛИДНУЮ область для корабля.
         if (location.length){
-            this.ships.push(new Ship(shipsType[shipLength-1], location));
+            this.ships.push(new Ship(shipsType[shipLength-1], location, )); // Добавляем объект Ship в общий массив кораблей.
         }
-        return location;
+        return location; // Возвращаем корабль для его дальнейшей отрисовки (только для игрока).
     }
-    createShipLocation(shipLength){
+
+
+    createShipLocation(shipLength){ // Возвращает созданный корабль. Определяет направление корабля.
         let location = [];
-        let direction = Math.floor(Math.random()*2);
-        let validLocation = this.getValidPoints(shipLength, direction);
-        if (!validLocation.length){
-            if (direction === 1) direction = 2;
-            else direction = 1;
+        let direction = Math.floor(Math.random()*2); // Рандомно определяем направление корабля 0 - вертикально 1 - горизонтально
+        let validLocation = this.getValidPoints(shipLength, direction); // Получаем массив валидных стартовых ячеек в зависимости от направления и размера создаваемого корабля
+        if (!validLocation.length){ // Если валидных ячеек для корабля нет, меняем направление и ищем снова
+            if (direction === 1) {
+                direction = 2;
+            }
+            else {
+                direction = 1;
+            }
             validLocation = this.getValidPoints(shipLength, direction);
-            if (!validLocation.length) return 0;
+            if (!validLocation.length) return 0; // Возвращает 0 если места для создания корабля нет
         } 
-        validLocation = validLocation[Math.floor(Math.random()*validLocation.length)];
-        for(let i = 0; i < shipLength; i++){
+        validLocation = validLocation[Math.floor(Math.random()*validLocation.length)]; // Выбираем рандомную ячейку из массива полученных валидных ячеек
+
+        for(let i = 0; i < shipLength; i++){ // Заполняем временный массив на основе стартовой ячейки, направления корабля и его длины
             if (direction){
                 location.push({
                     row: validLocation.row,
@@ -81,27 +96,12 @@ class GameArea {
                 });
             }
         }
-        this.pushShipLocationArea(location);
-        return location;
+        location.locationArea(this.allLocation, 'set'); // Записываем в матрицу созданную область корабля и область вокруг
+        return location; // Возвращаем область созданного корабля
     }
-    pushShipLocationArea(location){
-        for (let item of location){
-            for (let i = item.row-1; i <= item.row+1; i++){
-                for(let j = item.cell-1; j <= item.cell+1; j++){
-                    if(!!this.allLocation[i] && (typeof(this.allLocation[i][j]))!=='undefined'){
-                        if ((i !== item.row || j !== item.cell) && this.allLocation[i][j]!==1) {
-                            this.allLocation[i][j] = 2;
-                        } else if (i === item.row && j === item.cell) {
-                            this.allLocation[i][j] = 1;
 
-                        }
-                    }
-                }
-            }
-        }
-    }
-    getValidPoints(shipLength = 1, direction = 1){
-        let x = [];
+    getValidPoints(shipLength = 1, direction = 1){ // Метод получения валидных ячеек на основе длины и направления корабля
+        let validPoints = [];
         let counter = shipLength;
         let row = this.areaSize;
         let cell = this.areaSize;
@@ -114,21 +114,22 @@ class GameArea {
             for (let j = 0; j < cell; j++){
                 counter = shipLength;
                 for (let k = 0; k < shipLength; k++){
-                    if (direction && !this.allLocation[i][j+k]){
+                    if (direction && !this.allLocation[i][j+k]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для горизонтального корабля
                         counter--;
                     } 
-                    else if (!direction && !this.allLocation[i+k][j]){
+                    else if (!direction && !this.allLocation[i+k][j]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для вертикального корабля
                         counter--;
                     }
                 } 
-                if(!counter){
-                    x.push({row: i, cell: j});
+                if(!counter){ // Если все ячейки по направлению корабля свободны записываем ячейку в массив.
+                    validPoints.push({row: i, cell: j});
                 }
             }   
         }
-        return x;
+        return validPoints; // Возвращаем массив ячеек
     }
-    setCaption(){
+
+    setCaption(){ // Устанавливает HTML блок с информацией о количестве кораблей
 	    this.caption.innerHTML = "";
         shipsType.forEach( (item) => {
             let span = document.createElement('span');
@@ -136,41 +137,62 @@ class GameArea {
             this.caption.append(span);
         });
     }
-    hit(row, cell){
-        if (this.allLocation[row][cell] === 1){
-            let isKill = [row, cell].drawHit(this.table, this.allLocation, this.hitsLocation, this.ships);
-            if(isKill) {
-                this.setCaption();
-                if (!this.ships.length){
-                    return 3;
+
+
+    hit(row, cell){ // Совершает один ход игрока/компьютера. Возвращает данные в зависимости от попадания. Промах                    - 0;
+	                                                                                                    // Попадание                 - 1;
+	                                                                                                    // Корабль потоплен          - 2;
+                                                                                                        // Конец игры(все потоплены) - 3;
+        if (this.allLocation[row][cell] === 1){ // Попал
+            let isKill = [row, cell].drawHit(this.table, this.allLocation, this.ships); // Рисуем попадание
+            if(isKill) { // Если корабль потоплен
+                this.setCaption(); // Обновляем информацию о количестве кораблей
+                if (!this.ships.length){ // Если все корабли потоплены
+                    return 3; // Конец игры
                 }
                 return 2;
             }
         return 1;
         }
-        else {
-            [row, cell].drawMiss(this.table, this.allLocation);
+        else { // Промах
+            [row, cell].drawMiss(this.table, this.allLocation); // Рисуем промах
             return 0;
         }
     }
+
     winner(name){
-        alert(`${name} проиграл`);
+        alert(`${name} выиграл`);
     }
 }
 
-class Computer extends GameArea{
+class Computer extends GameArea{ // Объект компьютер
+
     constructor(name ,size){
         super(size);
         this.name = name;
+        this.hitsLocation = [];
     }
+
+    createTable() {
+        super.createTable();
+        for (let i = 0; i < this.areaSize; i++){
+            for (let j = 0; j < this.areaSize; j++){
+                this.hitsLocation.push({
+                    row: i,
+                    cell: j
+                });
+            }
+        }
+    }
+
     hit(row, cell){
     	let hitStatus = super.hit(row, cell); // 0 - промах; 1 - попадание в корабль; 2 - кобраль потоплен; 3 - конец игры.
     	if (hitStatus === 3){ // конец игры
-    		this.winner(this.name);
+    		return hitStatus;
     	}
-        if (cellAroundShip.aroundRow !== null){
-        	this.hitsLocation.delHitsLocation(cellAroundShip.aroundRow, cellAroundShip.aroundCell);
-        	return [cellAroundShip.aroundRow, cellAroundShip.aroundCell];
+        if (focusedShip.currentRow !== null){
+        	this.hitsLocation.findLocation(focusedShip.currentRow, focusedShip.currentCell, 'delete');
+        	return [focusedShip.currentRow, focusedShip.currentCell];
         } else {
         	let randomIndex = Math.random()*this.hitsLocation.length;
             let cellForHit = this.hitsLocation.slice(randomIndex,randomIndex+1);
@@ -178,6 +200,8 @@ class Computer extends GameArea{
             return [cellForHit[0].row, cellForHit[0].cell];	
         }
     }
+
+
     winner(){
         super.winner(this.name);
         this.ships.forEach( (item) => {
@@ -195,43 +219,47 @@ class Player extends GameArea{
         let ship = super.createShip(shipLength);
         ship.drawShips(this.table);
     }
+
+
     hit(row, cell){
     	let hitStatus = super.hit(row, cell); // 0 - промах; 1 - попадание в корабль; 2 - кобраль потоплен; 3 - конец игры.
-    	if (!hitStatus && cellAroundShip.aroundRow !== null){ //промах
-    		// alert('Промах, но корабль захвачен');
-    		return this.getCellAroundHittedShip(cellAroundShip.catchedRow, cellAroundShip.catchedCell);
+    	if (!hitStatus && focusedShip.currentRow !== null){ //промах
+            this.getRandFocusedShipCell(focusedShip.location);
     	}
     	else if (hitStatus === 1){ //попадание в корабль
-    		// alert('Попадание, кобраль захвачен');
-    		cellAroundShip.catchedRow = row;
-    		cellAroundShip.catchedCell = cell;
-    		return this.getCellAroundHittedShip(row, cell);
+            for (let i = 0; i < this.ships.length; i++){
+                let isFind = this.ships[i].location.findLocation(row, cell, 'getLocation');
+                if (isFind === 1){
+                    focusedShip.location = this.ships[i].location.locationArea(this.allLocation, 'get');
+                    console.log(focusedShip.location);
+                    break;
+
+                }
+            }
+    		this.getRandFocusedShipCell(focusedShip.location);
     	}
     	else if (hitStatus === 2){ // корабль потоплен
     		// alert('Корабль потоплен');
-    		return 2;
+    		return hitStatus;
     	}
     	else if (hitStatus === 3){ // конец игры
-    		this.winner(this.name);
+    		return hitStatus;
     	}
     }
-    getCellAroundHittedShip(row, cell){
-	    let isTrue = true;
-        while (isTrue){
-            let randCell = {
-                row: getRandInterval(row-1, row+2), // изменить на выбор ячеек "крестом"
-                cell: getRandInterval(cell-1, cell+2) // изменить на выбор ячеек "крестом"
-            };
-            // console.log(`Переданная ячейка: row: ${row} cell: ${cell}; новые координаты: row: ${randCell.row} cell: ${randCell.cell};
-            // диапазон: row:${row-1}-${row+2} cell: ${cell-1}-${cell+2}`);
-            if (randCell.row !== row  || randCell.cell !== cell){
-                if(!!this.allLocation[randCell.row] && typeof(this.allLocation[randCell.row][randCell.cell])!=='undefined' &&
-                    this.allLocation[randCell.row][randCell.cell]!==3){
-                    return randCell;
-                }
-            }
-        }
+
+
+    getRandFocusedShipCell(location){
+        let randIndex = Math.floor(Math.random()*location.length);
+        let randCell = location.slice(randIndex, randIndex+1);
+        let x = location.slice();
+        console.dir(x);
+        focusedShip.location.splice(randIndex,1);
+        console.dir(randCell);
+        focusedShip.currentRow =  randCell[0].row;
+        focusedShip.currentCell = randCell[0].cell;
     }
+
+
     winner() {
         super.winner(this.name);
     }
@@ -248,6 +276,37 @@ function getRandInterval (min, max){
     return Math.floor(Math.random()* (max - min)) + min;
 }
 
+Array.prototype.locationArea = function(allLocation, action){
+    let location = [];
+    let tmpAllLocation = JSON.parse(JSON.stringify(allLocation));
+    for (let item of this){
+        for (let i = item.row-1; i <= item.row+1; i++){
+            for(let j = item.cell-1; j <= item.cell+1; j++){
+                if(!!allLocation[i] && (typeof(allLocation[i][j]))!=='undefined'){
+                    if (action === 'set'){
+                        if ((i !== item.row || j !== item.cell) && allLocation[i][j]!==1) {
+                            allLocation[i][j] = 2;
+                        } else if (i === item.row && j === item.cell) {
+                            allLocation[i][j] = 1;
+
+                        }
+                    }
+                    else if (action === 'get'){
+                        if (tmpAllLocation[i][j]!==3 && tmpAllLocation[i][j]!==-1 && tmpAllLocation[i][j]!==4) {
+                            tmpAllLocation[i][j] = -1;
+                            location.push({
+                                row: i,
+                                cell: j
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (action === 'get') return location;
+};
+
 Array.prototype.drawShips = function(table, isHitted = false) {
     this.forEach( (item) => {
         if (isHitted) {
@@ -258,14 +317,13 @@ Array.prototype.drawShips = function(table, isHitted = false) {
     });
 };
 
-Array.prototype.drawHit = function(table, allLocation, location, ships) {
-	location.delHitsLocation(cellAroundShip.aroundRow, cellAroundShip.aroundCell);
+Array.prototype.drawHit = function(table, allLocation, ships) {
     for (let i = 0; i < ships.length; i++){
         let shipIndex  = null;
         ships[i].location.forEach( (item, index) => {
             if(item.row === this[0] && item.cell === this[1]) {
                 table.rows[item.row].cells[item.cell].style.backgroundColor = colors.RED;
-                allLocation[this[0]][this[1]] = 3;
+                allLocation[this[0]][this[1]] = 4;
                 shipIndex = index;
             }
         });
@@ -284,40 +342,42 @@ Array.prototype.drawHit = function(table, allLocation, location, ships) {
 };
 
 Array.prototype.drawMiss = function(table, allLocation) {
-    table.rows[this[0]].cells[this[1]].style.backgroundColor = colors.GRAY;
-    allLocation[this[0]][this[1]] = 3;
+        table.rows[this[0]].cells[this[1]].style.backgroundColor = colors.GRAY;
+        allLocation[this[0]][this[1]] = 3;
 };
 
-Array.prototype.delHitsLocation = function(row, cell){
+Array.prototype.findLocation = function(row, cell, action){
 	let findIndex = 0;
     for (let i = 0; i < this.length; i++){
         if (this[i].row === row && this[i].cell === cell){
         	findIndex = i;
+            if (action === 'delete') {
+                this.splice(findIndex, 1);
+            }
+            else if (action === 'getLocation') {
+                return 1;
+            }
         	break;
         } 	
     }
-    this.splice(findIndex, 1);
-}
+};
 
 document.getElementById('btnStart').addEventListener("click", function(){
 
     let areaSize = prompt("Введите размер поля", "");
-    // if (!areaSize || areaSize<10) areaSize = 10;
-    computer = new Computer("Alpha",areaSize);
+    let shipsStep = 1;
+    if (!areaSize || (+areaSize<10 || +areaSize>20)) areaSize = 10;
+    if (+areaSize === 15) shipsStep = 4;
+    if (+areaSize === 20) shipsStep = 6;
+    computer = new Computer("Alpha", areaSize);
     player = new Player("Anton", areaSize);
     computer.createTable();
     player.createTable();
-    // let maxShipCount = areaSize;
-    for (let i = 0; i < 1; i++){
-        // let shipsCount = prompt(`${shipsType[i]}: Введите количество. Осталось ${maxShipCount}`, "");
-        // if (!+shipsCount) shipsCount = 1;
-        // else if (+shipsCount>maxShipCount) shipsCount = maxShipCount;
-        for (let j = 0; j < 4+i; j++){
-            computer.createShip(2-i);
-            player.createShip(2-i);
+    for (let i = 0; i < shipsType.length; i++){
+        for (let j = 0; j < shipsStep+i; j++){
+            computer.createShip(4-i);
+            player.createShip(4-i);
         }
-        // maxShipCount-=shipsCount;
-        // if (!maxShipCount) break;
     }
     computer.setCaption();
     player.setCaption();
@@ -328,16 +388,17 @@ document.getElementById('btnStart').addEventListener("click", function(){
 
         let coords = computer.hit(row, cell); // получение рандомных координат для Player
 
+        if (coords === 3) player.winner();
+
         setTimeout(() => {
             let hitStatus = player.hit(coords[0], coords[1]); // 0 - Промах; {} - Попадание в корабль; 2 - Кобраль потоплен; 3 - Все корабли потоплены
             if (hitStatus === 2){
-            	for (let key in cellAroundShip){
-            		cellAroundShip[key] = null;
+            	for (let key in focusedShip){
+                    focusedShip[key] = null;
             	}
-            } 
-            else if (typeof (hitStatus) === 'object' && hitStatus.hasOwnProperty('row')){
-            	cellAroundShip.aroundRow = hitStatus.row;
-            	cellAroundShip.aroundCell = hitStatus.cell;
+            }
+            else if (hitStatus === 3){
+                computer.winner();
             }
         },100)
     }
