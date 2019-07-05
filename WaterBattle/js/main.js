@@ -7,11 +7,18 @@ const colors = { // Обект с цветами
     DARK_RED: 'darkred'
 };
 
-const focusedShip = { // Объект текущего корабля который расстреливает компьютер.
-                      // Содержит область в которой находится корабль, и рандомную координату этой обалсти
+const focusedShip = { // Сфокусированный корабль который расстреливает компьютер.
+                      // Содержит область в которой находится корабль, и рандомную координату этой области.
+                      // Также содержит информацию об уровне сложноости на основе которого обстреливает корабль
+    difficult: 0,
     currentRow: null,
     currentCell: null,
-    location: []
+    location: [],
+    defocus (){
+        this.currentRow = null;
+        this.currentCell = null;
+        this.location = [];
+    }
 };
 
 class GameArea { // Игровая область. Содержит
@@ -173,14 +180,22 @@ class Computer extends GameArea{ // Объект компьютер
         this.hitsLocation = [];
     }
 
-    createTable() {
-        super.createTable();
+    setHitslocation(allLocation){
         for (let i = 0; i < this.areaSize; i++){
             for (let j = 0; j < this.areaSize; j++){
-                this.hitsLocation.push({
-                    row: i,
-                    cell: j
-                });
+                if (focusedShip.difficult === 2){
+                    if (allLocation[i][j]!==2){
+                        this.hitsLocation.push({
+                            row: i,
+                            cell: j
+                        });
+                    }
+                } else {
+                    this.hitsLocation.push({
+                        row: i,
+                        cell: j
+                    });
+                }
             }
         }
     }
@@ -205,7 +220,7 @@ class Computer extends GameArea{ // Объект компьютер
     winner(){
         super.winner(this.name);
         this.ships.forEach( (item) => {
-            item.location.drawShips(this.table, true);
+            item.location.drawShips(this.table, false);
         });
     }
 }
@@ -219,46 +234,34 @@ class Player extends GameArea{
         let ship = super.createShip(shipLength);
         ship.drawShips(this.table);
     }
-
-
     hit(row, cell){
     	let hitStatus = super.hit(row, cell); // 0 - промах; 1 - попадание в корабль; 2 - кобраль потоплен; 3 - конец игры.
-    	if (!hitStatus && focusedShip.currentRow !== null){ //промах
-            this.getRandFocusedShipCell(focusedShip.location);
+
+    	if (!hitStatus && focusedShip.currentRow !== null){ // промах, но корабль в фокусе
+            this.setRandFocusedShipCell(focusedShip.location);
     	}
     	else if (hitStatus === 1){ //попадание в корабль
             for (let i = 0; i < this.ships.length; i++){
                 let isFind = this.ships[i].location.findLocation(row, cell, 'getLocation');
-                if (isFind === 1){
-                    focusedShip.location = this.ships[i].location.locationArea(this.allLocation, 'get');
-                    console.log(focusedShip.location);
+                if (isFind){
+                        focusedShip.location = this.ships[i].location.locationArea(this.allLocation, 'get');
                     break;
-
                 }
             }
-    		this.getRandFocusedShipCell(focusedShip.location);
+    		this.setRandFocusedShipCell(focusedShip.location);
     	}
-    	else if (hitStatus === 2){ // корабль потоплен
-    		// alert('Корабль потоплен');
-    		return hitStatus;
-    	}
-    	else if (hitStatus === 3){ // конец игры
-    		return hitStatus;
-    	}
+    	else if (hitStatus === 2 || hitStatus === 3){ // корабль потоплен или конец игры
+            return hitStatus;
+        }
     }
 
-
-    getRandFocusedShipCell(location){
+    setRandFocusedShipCell(location){
         let randIndex = Math.floor(Math.random()*location.length);
         let randCell = location.slice(randIndex, randIndex+1);
-        let x = location.slice();
-        console.dir(x);
         focusedShip.location.splice(randIndex,1);
-        console.dir(randCell);
         focusedShip.currentRow =  randCell[0].row;
         focusedShip.currentCell = randCell[0].cell;
     }
-
 
     winner() {
         super.winner(this.name);
@@ -270,10 +273,6 @@ class Ship{
 		this.name = name;
 		this.location = location;
 	}
-}
-
-function getRandInterval (min, max){
-    return Math.floor(Math.random()* (max - min)) + min;
 }
 
 Array.prototype.locationArea = function(allLocation, action){
@@ -292,12 +291,21 @@ Array.prototype.locationArea = function(allLocation, action){
                         }
                     }
                     else if (action === 'get'){
-                        if (tmpAllLocation[i][j]!==3 && tmpAllLocation[i][j]!==-1 && tmpAllLocation[i][j]!==4) {
-                            tmpAllLocation[i][j] = -1;
-                            location.push({
-                                row: i,
-                                cell: j
-                            })
+                        if (!focusedShip.difficult){
+                            if (tmpAllLocation[i][j]!==3 && tmpAllLocation[i][j]!==-1 && tmpAllLocation[i][j]!==4) {
+                                tmpAllLocation[i][j] = -1;
+                                location.push({
+                                    row: i,
+                                    cell: j
+                                });
+                            }
+                        } else{
+                            if (tmpAllLocation[i][j]===1){
+                                location.push({
+                                    row: i,
+                                    cell: j
+                                });
+                            }
                         }
                     }
                 }
@@ -355,22 +363,29 @@ Array.prototype.findLocation = function(row, cell, action){
                 this.splice(findIndex, 1);
             }
             else if (action === 'getLocation') {
-                return 1;
+                return true;
             }
         	break;
         } 	
     }
 };
 
-document.getElementById('btnStart').addEventListener("click", function(){
+let select = document.getElementById('select');
+let btnStart = document.getElementById('btnStart');
 
+select.addEventListener('change', function () {
+   focusedShip.difficult = this.selectedIndex;
+});
+
+btnStart.addEventListener("click", function(){
+    select.setAttribute("disabled", "disabled");
     let areaSize = prompt("Введите размер поля", "");
     let shipsStep = 1;
     if (!areaSize || (+areaSize<10 || +areaSize>20)) areaSize = 10;
     if (+areaSize === 15) shipsStep = 4;
     if (+areaSize === 20) shipsStep = 6;
-    computer = new Computer("Alpha", areaSize);
-    player = new Player("Anton", areaSize);
+    let computer = new Computer("Alpha", areaSize);
+    let player = new Player("Anton", areaSize);
     computer.createTable();
     player.createTable();
     for (let i = 0; i < shipsType.length; i++){
@@ -379,27 +394,26 @@ document.getElementById('btnStart').addEventListener("click", function(){
             player.createShip(4-i);
         }
     }
+    computer.setHitslocation(player.allLocation);
     computer.setCaption();
     player.setCaption();
     computer.table.onclick = function (element) {
-
         let row = element.target.parentNode.rowIndex;
         let cell = element.target.cellIndex;
-
-        let coords = computer.hit(row, cell); // получение рандомных координат для Player
-
-        if (coords === 3) player.winner();
-
-        setTimeout(() => {
-            let hitStatus = player.hit(coords[0], coords[1]); // 0 - Промах; {} - Попадание в корабль; 2 - Кобраль потоплен; 3 - Все корабли потоплены
-            if (hitStatus === 2){
-            	for (let key in focusedShip){
-                    focusedShip[key] = null;
-            	}
-            }
-            else if (hitStatus === 3){
-                computer.winner();
-            }
-        },100)
+        if (element.target.style.backgroundColor!==colors.GRAY && element.target.style.backgroundColor!==colors.RED){
+            let coords = computer.hit(row, cell); // получение рандомных координат для Player
+            if (coords === 3) player.winner();
+            setTimeout(() => {
+                let hitStatus = player.hit(coords[0], coords[1]);
+                if (hitStatus === 2){ // Корабль потоплен, убираем корабль из фокуса
+                    focusedShip.defocus();
+                }
+                else if (hitStatus === 3){
+                    computer.winner();
+                }
+            },100)
+        } else {
+            alert('Ячейка уже проверена');
+        }
     }
 });
