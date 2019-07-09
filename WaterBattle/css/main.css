@@ -1,11 +1,21 @@
 #gameArea{
-	display: flex;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 #gameArea>div{
+	display: flex;
+	flex-direction: column;
 	padding: 20px;
 }
-
+.room__title{
+	text-align: center;
+}
+.room__players-box{
+	display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
 .caption{
     display: flex;
     flex-direction: column;
