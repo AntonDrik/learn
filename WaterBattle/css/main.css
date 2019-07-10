@@ -1,8 +1,3 @@
-#gameArea{
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
 #gameArea>div{
 	display: flex;
 	flex-direction: column;
@@ -13,7 +8,7 @@
 }
 .room__players-box{
 	display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     padding: 10px;
 }
 .caption{
