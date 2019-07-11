@@ -11,7 +11,7 @@ var snake = {
     body: [],
     head: 0,
     tail: 0,
-    hp: 4,
+    hp: 3,
     set setHP(s) {
         this.hp = s;
         document.getElementById("hp").innerHTML = "HP: " + this.hp;
@@ -127,7 +127,7 @@ function setSnake() {
         if (!!table.rows[snake.body[i].row] && !!table.rows[snake.body[i].row].cells[snake.body[i].cell])
             getSnakeCell(i).style.backgroundImage = "";
     }
-    snake.startPos = 4;
+    snake.startPos = 3;
     for (let i = 0; i < snake.body.length; i++) {
         if (i === 0) getSnakeCell(i).style.backgroundImage = "url('img/snakeHeadR.png')";
         else if (i === snake.body.length - 1) getSnakeCell(i).style.backgroundImage = "url('img/snakeTailR.png')";
@@ -197,7 +197,7 @@ function checkNextStep() {
                 start();
             }
         }
-        if (score === gameSet.score) {
+        if (score == gameSet.score) {
             if (counter(1) === levelMas.length - 1) alert("You win! This Free Level. Good luck");
             return 1;
         } else {
@@ -243,7 +243,7 @@ function createCounter() {
 
 function setBlocksFreeLevel() {
     table.addEventListener('click', function (e) {
-        if (gameSet.numberLevel == "Free Game"){
+        if (gameSet.numberLevel === "Free Game"){
             let rowIndex = e.target.parentNode.rowIndex;
             let cellIndex = e.target.cellIndex;
             gameSet.crashBlocksArray.push({

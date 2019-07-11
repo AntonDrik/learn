@@ -47,7 +47,6 @@ const rightPosts = { // объект правого блока с сохране
             fetch(`https://jsonplaceholder.typicode.com/posts/${postsStorage[i]}`)
                 .then(response => response.json())
                 .then(json =>  {
-                    console.log(json);
                     this.postsArr.push(pushElem(json, 'right'));
                     this.load(postsStorage, i-1);
                 });
