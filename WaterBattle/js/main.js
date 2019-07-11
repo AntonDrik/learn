@@ -1,4 +1,4 @@
-"use strict";
+// "use strict";
 const shipsType = ['1 клеточный', '2 клеточный', '3 клеточный', '4 клеточный']; // Массив с типами кораблей
 const colors = { // Обект с цветами
     GRAY: 'gray',
@@ -127,8 +127,23 @@ class GameArea { // Игровая область. Содержит
         } else {
             row = this.areaSize-(shipLength-1);
         }
-        matrixLoop(this, row, cell, this.allLocation, function(i,j){
-           counter = shipLength;
+        // matrixLoop.call(this, row, cell, this.allLocation, function(i,j){
+        //    counter = shipLength;
+        //     for (let k = 0; k < shipLength; k++){
+        //         if (direction && !this.allLocation[i][j+k]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для горизонтального корабля
+        //             counter--;
+        //         }
+        //         else if (!direction && !this.allLocation[i+k][j]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для вертикального корабля
+        //             counter--;
+        //         }
+        //     }
+        //     if(!counter){ // Если все ячейки по направлению корабля свободны записываем ячейку в массив.
+        //         validPoints.push({row: i, cell: j});
+        //     }
+        // });
+        let func = matrixLoop.bind(this);
+        func(row, cell, this.allLocation, function(i,j){
+            counter = shipLength;
             for (let k = 0; k < shipLength; k++){
                 if (direction && !this.allLocation[i][j+k]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для горизонтального корабля
                     counter--;
@@ -187,13 +202,21 @@ class Computer extends GameArea{ // Объект компьютер
     }
     setHitsLocation(allLocation, difficult){
         if (this.hitsLocation.length) this.hitsLocation.length = 0;
-        matrixLoop(this, allLocation.length, undefined, allLocation, function (i, j, elem){
-            if (difficult === 2 && elem < 2){
-                this.hitsLocation.push({row: i, cell: j});
-            } else if (difficult !== 2){
-                this.hitsLocation.push({row: i, cell: j});
-            }
-        });
+        // matrixLoop.call(this, allLocation.length, undefined, allLocation, function (i, j, elem){
+        //     if (difficult === 2 && elem < 2){
+        //         this.hitsLocation.push({row: i, cell: j});
+        //     } else if (difficult !== 2){
+        //         this.hitsLocation.push({row: i, cell: j});
+        //     }
+        // });
+        let func = matrixLoop.bind(this);
+        func(allLocation.length, undefined, allLocation, function (i, j, elem){
+                if (difficult === 2 && elem < 2){
+                    this.hitsLocation.push({row: i, cell: j});
+                } else if (difficult !== 2){
+                    this.hitsLocation.push({row: i, cell: j});
+                }
+            });
     }
     hit(row, cell){
     	let hitStatus = super.hit(row, cell); // 0 - промах; 1 - попадание в корабль; 2 - кобраль потоплен; 3 - конец игры.
@@ -265,10 +288,10 @@ class Ship{
 	}
 }
 
-function matrixLoop(context, row, cell = row, matrix, func){
+function matrixLoop(row, cell = row, matrix, func){
     for (let i = 0; i < row; i++){
         for (let j = 0; j < cell; j++){
-            func.call(context, i, j, matrix[i][j]);
+            func.call(this, i, j, matrix[i][j]);
         }
     }
 }
@@ -364,10 +387,10 @@ btnStart.addEventListener("click", function(){
     } while (isNaN(+areaSize) || !+areaSize || +areaSize<10 || +areaSize>20);
     if (+areaSize === 15) shipsStep = 4;
     if (+areaSize === 20) shipsStep = 6;
-    let gameBox = new GameBox("room");
+    gameBox = new GameBox("room");
     gameBox.createGameBox(select.selectedOptions[0].text);
-    let computer = new Computer(undefined, areaSize);
-    let player = new Player(undefined, areaSize);
+    computer = new Computer(undefined, areaSize);
+    player = new Player(undefined, areaSize);
     computer.createTable(gameBox.playersBox);
     player.createTable(gameBox.playersBox);
     for (let i = 0; i < shipsType.length; i++){
