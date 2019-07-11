@@ -1,0 +1,60 @@
+.header{
+    position: fixed;
+    width: 100%;
+}
+
+.header__icons{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.header__list{
+    list-style-type: none;
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.header__link{
+    display: inline-block;
+    cursor: pointer;
+}
+
+.header__link>a{
+    color: #3c3c3c;
+    text-decoration: none;
+}
+
+.header__link>a:hover{
+    text-decoration: underline;
+}
+
+.header__link:nth-child(2){
+    padding-left: 15px;
+    padding-right: 10px;
+}
+
+.header__link:last-child{
+    margin-left: 10px;
+}
+
+.header__link_app{
+    background-image: url("../../../img/sprite.png");
+    background-position: -138px -237px;
+    width: 30px;
+    height: 30px;
+    opacity: 0.5;
+}
+
+.header__link_app:hover{
+    opacity: 1;
+}
+
+.header__link_account{
+    width: 30px;
+    height: 30px;
+    border-radius: 25px;
+    background-image: url("../../../img/account-logo.png");
+    background-position: -2px;
+}

@@ -1,0 +1,10 @@
+@import url("blocks/header/header.css");
+@import url("components/buttons/btn.css");
+@import url("components/buttons/btn__theme-standart.css");
+@import url("components/inputs/input.css");
+@import url("components/inputs/input__theme-standart.css");
+
+body{
+    margin: 0;
+    font: small arial,sans-serif;
+}
