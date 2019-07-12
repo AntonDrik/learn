@@ -1,30 +1,30 @@
-"use strict";
-
-let currentPostIndex = 1;
+let currentPostIndex = 0;
 
 const leftPosts = { // Объект левого блока с постами. Методы: загрузка постов, добавление поста в сохраненные.
     HTMLBox: document.querySelector('#left-posts-box'),
     showMoreBtn: document.querySelector('.content-left__btn-showmore'),
     postsArr: [], // Массив с текущими поставми в левом блоке.
 
-    load(maxIndex){ // Рекурсивный метод который выгружает посты с сервера и вставляет в левый блок. Принимает количество постов для выгрузки,
+    load(){ // Рекурсивный метод который выгружает посты с сервера и вставляет в левый блок. Принимает количество постов для выгрузки,
                     // начальный пост рекурсивно увеличивается на один, для последующей выгрузки постов начиная с последней позиции.
                     // Начальный пост находится в глобальной переменной. Возможно неправильный подход.
-        if (currentPostIndex <= maxIndex){ // Рекурсия работает до тех пор, пока текущий пост меньше максимального кол-ва постов.
-            fetch(`https://jsonplaceholder.typicode.com/posts/${currentPostIndex}`)
+        fetch(`https://jsonplaceholder.typicode.com/posts`)
                 .then(response => {
                     if (response.ok){ // Если запрос прошел верно, преобразуем ответ сервера в json
                         return response.json();
                     }
                     else if (response.status === 404) alert('posts ended'); // Если посты закончились выводим ошибку об этом
                 })
-                .then(json =>  {
-                    currentPostIndex+=1; // Увеличиваем начальный пост на один
-                    this.load(maxIndex); // Повторно вызываем функцию
-                    this.postsArr.push(pushElem(json, 'left')); // Создаем объект PostItem на основе response сервера и заносим его в массив с постами левого блока
+				.then(json =>  {
+					let posts = json.filter( (item, index) => {
+						if (index>=currentPostIndex && index<currentPostIndex+10){
+							pushElem(item, 'left');
+							return item;
+						}
+					});
+					this.postsArr = this.postsArr.concat(posts);
+					currentPostIndex+=10;
                 });
-        }
-
     },
     addPost(post){ // Добавляет пост в правый блок. Возможно стоит перенести этот метод в объект с правым блоком.
         let findPost = rightPosts.postsArr.find( (item) => item.id === post.id); // Смторим есть ли в правом блоке добавляемый пост
@@ -137,8 +137,8 @@ PostItem.prototype.setHTMLElem = function(itemType){
 };
 
 document.querySelector('#left-posts-box').addEventListener('scroll', function () {
-    let currentScrollBottom = this.scrollTop+this.offsetHeight;
-    if (this.scrollHeight === currentScrollBottom){
+    let currentScrollBottom = (this.scrollTop+this.offsetHeight)+2;
+    if (currentScrollBottom > this.scrollHeight){
         leftPosts.showMoreBtn.removeAttribute("disabled");
     } else {
         leftPosts.showMoreBtn.setAttribute("disabled", "");
@@ -146,10 +146,11 @@ document.querySelector('#left-posts-box').addEventListener('scroll', function ()
 });
 
 leftPosts.showMoreBtn.addEventListener('click', function () {
-    leftPosts.load(currentPostIndex+9);
+    leftPosts.load();
+    leftPosts.showMoreBtn.setAttribute("disabled", "");
 });
 
 
-leftPosts.load(10);
+leftPosts.load();
 leftPosts.showMoreBtn.setAttribute("disabled", "");
 rightPosts.load();
