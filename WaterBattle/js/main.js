@@ -248,7 +248,9 @@ class Player extends GameArea{
     }
     createShip(shipLength = 1){
         let ship = super.createShip(shipLength);
-        ship.drawShips(this.table);
+        if (ship) ship.drawShips(this.table);
+        else return 1;
+        return 0;
     }
     hit(row, cell){
     	let hitStatus = super.hit(row, cell); // 0 - промах; 1 - попадание в корабль; 2 - кобраль потоплен; 3 - конец игры.
@@ -393,11 +395,14 @@ btnStart.addEventListener("click", function(){
     player = new Player(undefined, areaSize);
     computer.createTable(gameBox.playersBox);
     player.createTable(gameBox.playersBox);
-    for (let i = 0; i < shipsType.length; i++){
+    outer: for (let i = 0; i < shipsType.length; i++){
         for (let j = 0; j < shipsStep+i; j++){
+            if(player.createShip(4-i)) {
+                alert('Нет места для создания корабля');
+                break outer;
+            }
             computer.createShip(4-i);
-            player.createShip(4-i);
-        }
+            }
     }
     computer.setHitsLocation(player.allLocation,1);
     computer.setCaption();
@@ -410,9 +415,9 @@ btnStart.addEventListener("click", function(){
             if (coords === 3) player.winner();
             setTimeout(() => {
                 let hitStatus = player.hit(coords[0], coords[1]);
-                if (hitStatus === 2){ // Корабль потоплен, убираем корабль из фокуса. Меняем сложность в зависимости от кол-ва кораблей (для средней сложности)
+                if (hitStatus === 2){ // Корабль потоплен, убираем корабль из фокуса. Меняем сложность в зависимости от кол-ва кораблей
                     focusedShip.defocus();
-                    if ((difficult === 1 && player.ships.length === Math.floor(areaSize/3)) || (difficult === 2 && player.ships.length === areaSize/2)) {
+                    if ((difficult === 1 && player.ships.length === Math.floor(areaSize/3)) || (difficult === 2 && player.ships.length === (areaSize/2)+1)) {
                         computer.setHitsLocation(player.allLocation, 2);
                     }
                 }
@@ -423,3 +428,13 @@ btnStart.addEventListener("click", function(){
         }
     }
 });
+
+for(let i = 0; i < 10; i++){
+    let btn = document.createElement('button');
+    btn.onclick = function(){
+        setTimeout(()=>{
+            console.log(i);
+        }, 1000)
+    };
+    document.body.append(btn);
+}

@@ -9,19 +9,43 @@
     <title>Document</title>
 </head>
 <body>
+<template id ="left-posts">
+    <div class="content-left__post-item post-item-size">
+        <div class="post-item__wrapper">
+            <h6 class="post-item__postID-title">1</h6>
+            <h4 class="post-item__title">sunt aut facere repellat provident occaecati excepturi optio reprehenderit</h4>
+            <article class="post-item__body">quia et suscipit<br>suscipit recusandae consequuntur expedita et cum
+                <br>reprehenderit molestiae ut ut quas totam<br>nostrum rerum est autem sunt rem eveniet architecto</article>
+            <button class="post-item__btn-add btn__theme-standart btn">Add to favorites</button>
+        </div>
+    </div>
+</template>
+<template id="right-posts">
+    <div class="content-right__post-item post-item-size">
+        <div class="post-item__wrapper">
+            <h6 class="post-item__postID-title">1</h6>
+            <h4 class="post-item__title">sunt aut facere repellat provident occaecati excepturi optio reprehenderit</h4>
+            <article class="post-item__body">quia et suscipit<br>suscipit recusandae consequuntur expedita et cum
+                <br>reprehenderit molestiae ut ut quas totam<br>nostrum rerum est autem sunt rem eveniet architecto</article>
+            <button class="post-item__btn-remove btn__theme-standart btn">Remove from favorites</button>
+        </div>
+    </div>
+</template>
 <div class="content">
     <div class="content-left">
         <h1 class="content__title">Posts</h1>
         <div id="left-posts-box" class="left-posts-box posts-box">
         </div>
-        <button class="content-left__btn-showmore btn">Show more</button>
+        <button class="content-left__btn-showmore btn" disabled>Show more</button>
     </div>
     <div class="content-right">
         <h1 class="content__title">Saved posts</h1>
         <div id="right-posts-box" class="content-right__posts-box posts-box">
+
         </div>
     </div>
 </div>
 <script src="js/main.js"></script>
 </body>
 </html>
+
