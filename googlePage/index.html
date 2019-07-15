@@ -9,7 +9,7 @@
     <title>Document</title>
 </head>
 <body>
-<div class="header">
+<header class="header">
     <div class="header__icons">
         <ul class="header__list">
             <li class="header__link header__link_post"><a href="">Почта</a></li>
@@ -18,10 +18,58 @@
             <li class="header__link header__link_account"><a href=""></a></li>
         </ul>
     </div>
-</div>
+</header>
 <div class="logo-container">
-
+    <img src="img/main-logo.png" width="272" height="92"/>
+    <form action="" class="logo-container__search-form">
+        <div class="search-form">
+            <div id="search-form__search-box" class="search-form__search-box" tabindex="-1">
+                <input type="text" id="search-form__input" class="input__theme_search-form">
+                <div class="search-form__input-btns">
+                    <div class="search-form__input-img search-form__keyboard" title="Экранная клавиатура"></div>
+                    <div class="search-form__input-img search-form__voice" title="Голосовой поиск"></div>
+                </div>
+                <div id="data-list" class="search-form__data-list hidden">
+                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
+                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
+                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
+                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
+                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
+                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
+                </div>
+            </div>
+            <div class="search-form__btns">
+                <button type="submit" class="search-form__btn-search btn__theme-search-form">
+                    Поиск в Google
+                </button>
+                <button type="submit" class="search-form__btn-luck btn__theme-search-form">
+                    Мне повезёт!
+                </button>
+            </div>
+        </div>
+    </form>
+    <div class="logo-container__lang">
+        <span class="logo-container__span">Сервисы Google доступны на разных языках: <a href="/">Беларуская</a></span>
+    </div>
 </div>
+<footer class="footer">
+    <div class="footer__item">
+        <span class="footer__span">Беларусь</span>
+    </div>
+    <div class="footer__item">
+        <ul class="footer__ul">
+            <li class="footer__li"><a href="">Реклама</a></li>
+            <li class="footer__li"><a href="">Для бизнеса</a></li>
+            <li class="footer__li"><a href="">Всё о Google</a></li>
+            <li class="footer__li"><a href="">Как работает Google Поиск</a></li>
+        </ul>
+        <ul class="footer__ul">
+            <li class="footer__li"><a href="">Конфиденциальность</a></li>
+            <li class="footer__li"><a href="">Условия</a></li>
+            <li class="footer__li"><a href="">Настройки</a></li>
+        </ul>
+    </div>
+</footer>
 <script src="main.js"></script>
 </body>
 </html>

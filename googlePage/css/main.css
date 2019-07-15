@@ -1,10 +1,15 @@
 @import url("blocks/header/header.css");
+@import url("blocks/logo-container/logo-container.css");
+@import url("blocks/logo-container/search-form/search-form.css");
+@import url("blocks/footer/footer.css");
 @import url("components/buttons/btn.css");
-@import url("components/buttons/btn__theme-standart.css");
+@import url("components/buttons/btn__theme-search-form.css");
 @import url("components/inputs/input.css");
-@import url("components/inputs/input__theme-standart.css");
+@import url("components/inputs/input__theme_search-form.css");
 
+html,
 body{
+    height: 100%;
     margin: 0;
     font: small arial,sans-serif;
 }
