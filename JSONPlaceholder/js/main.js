@@ -14,9 +14,11 @@ const leftPosts = { // Объект левого блока с постами. �
 				.then(json =>  {
 
 				    let posts = json.filter( (item, index) => index>=this.currentPostIndex && index<this.currentPostIndex+count);
-
-                    if (!posts.length) alert('Посты закончились');
-                    else {
+                    if (json.length-count === this.currentPostIndex) {
+                        this.showMoreBtn.dataset.end = "true";
+                        leftPosts.showMoreBtn.setAttribute("disabled", "");
+                    }
+                    if (posts.length){
                         posts.forEach(item => {
                             setElem(item, 'left-posts', function(){
                                 this.HTMLElem.querySelector('.post-item__btn-add').onclick = () =>{
@@ -130,7 +132,7 @@ function sortLocalStorage(a,b){ // Сортировка массива из Loca
 
 document.querySelector('#left-posts-box').addEventListener('scroll', function () {
     let currentScrollBottom = (this.scrollTop+this.offsetHeight)+2;
-    if (currentScrollBottom > this.scrollHeight){
+    if (currentScrollBottom > this.scrollHeight && !leftPosts.showMoreBtn.getAttribute("data-end")){
         leftPosts.showMoreBtn.removeAttribute("disabled");
     } else {
         leftPosts.showMoreBtn.setAttribute("disabled", "");
@@ -142,5 +144,5 @@ leftPosts.showMoreBtn.addEventListener('click', function () {
     leftPosts.showMoreBtn.setAttribute("disabled", "");
 });
 
-leftPosts.load(10);
+leftPosts.load(80);
 rightPosts.load();
