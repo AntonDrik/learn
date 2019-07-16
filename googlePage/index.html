@@ -9,6 +9,17 @@
     <title>Document</title>
 </head>
 <body>
+<template id="history-item">
+    <div class="data-list__item">
+        <span class="data-list__value_history"></span>
+        <a class="data-list__remove">Удалить</a>
+    </div>
+</template>
+<template id="search-item">
+    <div class="data-list__item">
+        <span class="data-list__value_search"></span>
+    </div>
+</template>
 <header class="header">
     <div class="header__icons">
         <ul class="header__list">
@@ -24,18 +35,13 @@
     <form action="" class="logo-container__search-form">
         <div class="search-form">
             <div id="search-form__search-box" class="search-form__search-box" tabindex="-1">
-                <input type="text" id="search-form__input" class="input__theme_search-form">
+                <input type="text" id="search-form__input" class="input__theme_search-form" autocomplete="off">
                 <div class="search-form__input-btns">
                     <div class="search-form__input-img search-form__keyboard" title="Экранная клавиатура"></div>
                     <div class="search-form__input-img search-form__voice" title="Голосовой поиск"></div>
                 </div>
                 <div id="data-list" class="search-form__data-list hidden">
-                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
-                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
-                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
-                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
-                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
-                    <div class="data-list__item"><span>1</span><div class="data-list__remove"><a href="">Удалить</a></div></div>
+
                 </div>
             </div>
             <div class="search-form__btns">
