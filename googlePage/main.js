@@ -80,8 +80,7 @@ const searchForm = {
 
     deleteFromHistory(){
         let target = arguments[0];
-
-
+        cookie.deleteCookie(this.id);
     }
 };
 
@@ -125,9 +124,10 @@ const cookie = {
     },
 
     deleteCookie(id){
-        let find = document.cookie.match(new RegExp(
-            "(?:^|; )" + String(id).replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-        ));
+        // console.log(`cookie: ${document.cookie}, forDel: ${id}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`);
+        // document.cookie = id + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        document.cookie = id+"=;expires=-1";
+
     }
 };
 
