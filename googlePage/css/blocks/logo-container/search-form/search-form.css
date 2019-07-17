@@ -1,0 +1,100 @@
+.search-form{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-form__search-box{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: 22px;
+    padding: 0px 20px;
+    border: 1px solid #dfe1e5;
+    outline: none;
+}
+
+.search-form__input-btns{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    padding-right: 10px;
+}
+
+.search-form__input-img{
+    cursor: pointer;
+    padding: 10px;
+}
+.search-form__voice{
+    height: 25px;
+    width: 20px;
+    background: url(https://www.gstatic.com/images/branding/googlemic/2x/googlemic_color_24dp.png) no-repeat center;
+    background-size: 26px 26px;
+}
+
+.search-form__keyboard{
+    background: url(http://www.gstatic.com/inputtools/images/tia.png) no-repeat center;
+    height: 24px;
+    width: 24px;
+}
+
+.search-form__btns{
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.search-form__btn-search{
+    margin-right: 20px;
+}
+
+.search-form__data-list{
+    font-size: 15px;
+    border-top: 1px solid #dfe1e5;
+    outline: none;
+    border-radius: 0px 0px 22px 22px;
+    padding-bottom: 20px;
+    padding-top: 5px;
+}
+
+.data-list__item{
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    display: flex;
+    justify-content: space-between;
+    cursor: default;
+    line-height: 1.4;
+}
+
+.data-list__value_history{
+    font-size: 16px;
+    color: #52188c;
+    font-weight: bold;
+}
+
+.data-list__value_history{
+    font-weight: bold;
+}
+
+.data-list__remove{
+    text-decoration: none;
+    color: #36c;
+    font: 13px arial,sans-serif;
+    cursor: pointer;
+}
+
+.data-list__remove:hover{
+    text-decoration: underline;
+}
+
+.data-list__item:hover{
+    background-color: #eee;
+}
+
+.hidden{
+    display: none;
+}
