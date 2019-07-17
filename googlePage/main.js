@@ -3,84 +3,105 @@ const searchForm = {
     HTMLBox: document.querySelector('#search-form__search-box'),
     inputHTML: document.querySelector('#search-form__input'),
     dataListHTML: document.querySelector('#data-list'),
-    searchDataArr: ['дом', 'Большая квартира','javascript','чай','программирование','простое предложение', 'human'],
+    searchDataArr: ['дом', 'Большая квартира','javascript','чай','программирование','простое предложение', 'human', 'edge'],
 
     setListeners(){
         this.inputHTML.addEventListener('click',  (e)=> {
             e.preventDefault();
             if(e.target.value === '' && this.dataListHTML.classList.contains('hidden')){
                 this.getSearchList(cookie.searchHistory.sort(sortDate));
-                // this.dataListHTML.appendChild(document.querySelector('.search-form__btns'));
-                this.dataListHTML.classList.remove('hidden');
+
             }
         });
 
-        this.inputHTML.addEventListener('keydown', function (e) {
+        this.inputHTML.addEventListener('keydown', function (e) { // Проверка на нажатие Enter и добавление слова в историю поиска
             let key = e.keyCode;
-            if (key === 13 && this.value!=='') {
+            if (key === 13 && this.value!=='') { // обработка Enter
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                let cookieLength = document.cookie.split(';').length;
-                let inputValue = this.value.replace(/;/gi, '');
-                if (document.cookie === "") cookieLength = 0;
-                if (cookieLength < 10){
-                    document.cookie = `${cookieLength+1}=${JSON.stringify({date: Date(), value: inputValue})}`;
-                }
-                else {
-                    let min = cookie.searchHistory[0];
-                    cookie.searchHistory.forEach(item => {
-                        if(new Date(item.date) < new Date(min.date)) min = item;
-                    });
-                    document.cookie = `${min.id}=${JSON.stringify({date: Date(), value: inputValue})}`;
-                }
-                cookie.getCookie();
+                searchForm.addWordToSearchList.call(this);
             }
-        }); // обработка Enter.
+        });
 
-        this.inputHTML.addEventListener('keyup',  (e) => {
+        this.inputHTML.addEventListener('keyup',  (e) => { // Динамическое отображение похожих запросов поиска.
+                                                                        // Объединяет похожие запросы из массива и истории
             let target = e.target;
             if (e.keyCode !== 13 && target.value !== '') {
                 let findItemsFromHistory = cookie.searchHistory.filter(item => item.value.slice(0, target.value.length) === target.value);
-                let findItemFromSearch = this.searchDataArr.filter(item => item.slice(0, target.value.length) === target.value);
+                let findItemFromSearch = this.searchDataArr.filter(item => {
+                    if(item.slice(0, target.value.length) === target.value && findItemsFromHistory.map(x=> x.value).indexOf(item) === -1){
+                        return item;
+                    }
+                });
                 this.getSearchList(findItemFromSearch.concat(findItemsFromHistory));
             }
-
-            else if(target.value === '') {
+            else if (e.keyCode !== 13 && target.value === ''){
                 this.getSearchList(cookie.searchHistory.sort(sortDate));
-                this.dataListHTML.classList.remove('hidden');
             }
         });
 
-        // this.inputHTML.addEventListener('blur',  ()=> {
-        //     // this.FormHTML.appendChild(document.querySelector('.search-form__btns'));
-        //     this.dataListHTML.classList.add('hidden');
-        // }); // Выход из фокуса
-
         this.dataListHTML.addEventListener('click', function (e) {
             e.preventDefault();
+        });
+
+        this.inputHTML.addEventListener('blur', function () {
+            setTimeout(() => {
+                blur();
+            },150);
         })
     },
 
-    getSearchList(arr){
+    addWordToSearchList(){ // Добавление слова в историю поиска
+        let inputValue = this.value.replace(/;/gi, '/');
+        if(cookie.searchHistory.map( item => item.value).indexOf(inputValue) === -1){
+            let cookieLength = document.cookie.split(';').length;
+            if (cookieLength < 10){
+                cookie.setCookie(cookie.getFreeID()[0], JSON.stringify({date: Date(), value: inputValue}), new Date());
+            }
+            else {
+                let min = cookie.searchHistory[0];
+                cookie.searchHistory.forEach(item => {
+                    if(new Date(item.date) < new Date(min.date)) min = item;
+                });
+                cookie.setCookie(min.id, JSON.stringify({date: Date(), value: inputValue}), new Date());
+            }
+            cookie.getCookie();
+        }
+    },
+
+    getSearchList(arr){ // Выводит на экран историю поиска
         this.dataListHTML.innerHTML = "";
         arr.forEach(item => {
             let HTMLItem = null;
             if (typeof item === 'object'){
                 HTMLItem = document.querySelector('#history-item').content.cloneNode(true).querySelector('.data-list__item');
                 HTMLItem.querySelector('.data-list__value_history').innerText = item.value;
-                HTMLItem.querySelector('.data-list__remove').onclick = this.deleteFromHistory.bind(item);
+                HTMLItem.querySelector('.data-list__remove').onclick = this.deleteFromHSearchList.bind(item);
+                HTMLItem.onclick = this.selectItem.bind(this);
             }
             else {
                 HTMLItem = document.querySelector('#search-item').content.cloneNode(true).querySelector('.data-list__item');
                 HTMLItem.querySelector('.data-list__value_search').innerText = item;
+                HTMLItem.onclick = this.selectItem.bind(this);
             }
-            this.dataListHTML.prepend(HTMLItem);
+            this.dataListHTML.append(HTMLItem);
         });
+        this.dataListHTML.classList.remove('hidden');
+        this.HTMLBox.classList.add('search-form__search-box_active');
     },
 
-    deleteFromHistory(){
-        let target = arguments[0];
-        cookie.deleteCookie(this.id);
+    selectItem(){ // Добавляет в Input выбранный элемент
+        let e = arguments[0];
+        this.inputHTML.value = e.target.closest('.data-list__item').querySelector('span').textContent;
+    },
+
+    deleteFromHSearchList(){
+        let e = arguments[0];
+        e.preventDefault();
+        e.stopPropagation();
+        cookie.setCookie(this.id, "", new Date(0));
+        e.target.closest('.data-list__item').remove();
+        cookie.getCookie();
     }
 };
 
@@ -88,14 +109,12 @@ const cookie = {
 
     searchHistory: [],
 
-    getCookie() {
+    getCookie() {  // Получает историю поиска из Cookie. Добавляет историю в массив searchHistory
         this.searchHistory.length = 0;
-        for(let i = 1; i <= document.cookie.split(';').length; i++){
-
+        for(let i = 1; i <= 10; i++){
             let matches = document.cookie.match(new RegExp(
                 "(?:^|; )" + String(i).replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
             ));
-
             if(matches){
                 let searchData = JSON.parse(matches[1]);
                 this.searchHistory.push({
@@ -108,28 +127,23 @@ const cookie = {
         console.log(this.searchHistory);
     },
 
-    updCookie(item){
-
+    setCookie(id, value, date){  // Устанавливает новый item для cookie
+        date.setDate(date.getDate()+1);
+        console.log(`${id}=${value}; expires=${date.toUTCString()}`);
+        document.cookie = `${id}=${value}; expires=${date.toUTCString()}`;
     },
 
-    deleteAllCookies() {
-        let cookies = document.cookie.split(";");
-
-        for (let i = 0; i < cookies.length; i++) {
-            let cookie = cookies[i];
-            let eqPos = cookie.indexOf("=");
-            let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        }
-    },
-
-    deleteCookie(id){
-        // console.log(`cookie: ${document.cookie}, forDel: ${id}=;expires=Thu, 01 Jan 1970 00:00:00 GMT`);
-        // document.cookie = id + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        document.cookie = id+"=;expires=-1";
-
+    getFreeID(){ // получает свободные id cookie в диапазоне от 1 до 10.
+        let searchID = this.searchHistory.map( item => item.id);
+        let arr = Array.from({length: 10}, (i, k) => k+1);
+        return arr.filter(item => searchID.indexOf(item) === -1);
     }
 };
+
+function blur() {
+    searchForm.dataListHTML.classList.add('hidden');
+    searchForm.HTMLBox.classList.remove('search-form__search-box_active');
+}
 
 function sortDate(a,b){
     if(a.date < b.date) return 1;
