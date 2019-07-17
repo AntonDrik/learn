@@ -245,3 +245,75 @@ if (navigator.cookieEnabled) {
 // }
 //
 // let clock = new Clock('America/New_York');
+
+
+// ---- VARIABLES
+
+// $clockSize: 320px
+// $clockPadding: ($clockSize / 14.4)
+// $clockBackground: #F7F7F7
+// $innerBorderWidth: ($clockSize / 72)
+// $innerBorderColor: #181818
+// $secondHandBackgroundColor: #ec231e
+//
+// // ---- DOCUMENT
+//
+// html, body
+// height: 100%
+//
+// body
+// display: flex
+// align-items: center
+// justify-content: center
+// background: linear-gradient(110deg, #D2D2D2, #F5F5F5)
+//
+// *
+// box-sizing: border-box !important
+//
+// // ---- CLOCK
+//
+//     .clock
+//
+//     .inner
+//
+//     .hand
+// position: absolute
+// top: 50%
+// left: 50%
+// width: 3px
+// background-color: #181818
+//
+// &.hour
+// height: ($clockSize / 4)
+// margin-top: -($clockSize / 13.2)
+// transform: rotate(0deg) translate(-50%, -50%)
+// transform-origin: 0 ($clockSize / 13.2)
+//
+// &.minute
+// height: ($clockSize / 3)
+// margin-top: -($clockSize / 13.2)
+// transform: rotate(0deg) translate(-50%, -50%)
+// transform-origin: 0 ($clockSize / 13.2)
+//
+// &.second
+// width: ($clockSize / 185)
+// height: ($clockSize / 3)
+// background-color: $secondHandBackgroundColor
+// margin-top: -($clockSize / 10)
+// transform: rotate(0deg) translate(-50%, -50%)
+// transform-origin: 0 ($clockSize / 10)
+//
+// &:before, &:after
+// content: ''
+// display: inherit
+// position: inherit
+// left: inherit
+// background-color: inherit
+// border-radius: 100%
+// transform: translate(-50%, -50%)
+//
+// &:before
+// top: ($clockSize / 3.8)
+// width: ($clockSize / 20)
+// height: ($clockSize / 20)
+// box-shadow: -2px -2px 2px 0 rgba(0, 0, 0, 0.15)
