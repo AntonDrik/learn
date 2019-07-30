@@ -1,11 +1,8 @@
 "use strict";
-const leftPosts = { // Объект левого блока с постами. Методы: загрузка постов, добавление поста в сохраненные.
-    HTMLBox: document.querySelector('#left-posts-box'),
-    showMoreBtn: document.querySelector('.content-left__btn-showmore'),
-    currentPostIndex: 0,
-
-    load(count = 10){
-        fetch(`https://jsonplaceholder.typicode.com/posts`)
+const leftPosts = Object.create(
+    {
+        load(count = 10){
+            fetch(`https://jsonplaceholder.typicode.com/posts?_start=${this.currentPostIndex}&_limit=${count}`)
                 .then(response => {
                     if (response.ok){ // Если запрос прошел верно, преобразуем ответ сервера в json
                         return response.json();
@@ -13,13 +10,13 @@ const leftPosts = { // Объект левого блока с постами. �
                 }, error => alert(error))
 				.then(json =>  {
 
-				    let posts = json.filter( (item, index) => index>=this.currentPostIndex && index<this.currentPostIndex+count);
-                    if (json.length-count === this.currentPostIndex) {
-                        this.showMoreBtn.dataset.end = "true";
-                        leftPosts.showMoreBtn.setAttribute("disabled", "");
-                    }
-                    if (posts.length){
-                        posts.forEach(item => {
+				    // let posts = json.filter( (item, index) => index>=this.currentPostIndex && index<this.currentPostIndex+count);
+                    // if (json.id-count === this.currentPostIndex) {
+                    //     this.showMoreBtn.dataset.end = "true";
+                    //     leftPosts.showMoreBtn.setAttribute("disabled", "");
+                    // }
+                    if (json.length){
+                        json.forEach(item => {
                             setElem(item, 'left-posts', function(){
                                 this.HTMLElem.querySelector('.post-item__btn-add').onclick = () =>{
                                     leftPosts.addPostToFavorites(this);
@@ -29,40 +26,51 @@ const leftPosts = { // Объект левого блока с постами. �
                         });
                         this.currentPostIndex+=count;
                     }
+                    else {
+                        this.showMoreBtn.dataset.end = "true";
+                        leftPosts.showMoreBtn.setAttribute("disabled", "");
+                    }
                 });
+        },
+        addPostToFavorites(postItem){
+            let findPost = rightPosts.postsArr.find( (item) => item.id === postItem.id); // Смторим есть ли в правом блоке добавляемый пост
+            if (typeof findPost === 'undefined'){ // Если добавляемый пост уже есть то ничего не делаем, иначе - добавляем
+
+                localStorage.setItem(postItem.id, postItem.id);
+                setElem(postItem, 'right-posts', function(){ // Заносим в массив правых постов добавляемый пост. Через callback ставим onclick
+
+                    this.HTMLElem.querySelector('.post-item__btn-remove').onclick = ()=>{
+                        rightPosts.removePost(this);
+                    };
+                    rightPosts.HTMLBox.append(this.HTMLElem);
+                    rightPosts.postsArr.push(this);
+
+                });
+            } else alert('Пост уже добавлен в избранное');
+        }
     },
-    addPostToFavorites(postItem){ // Добавляет пост в правый блок. Возможно стоит перенести этот метод в объект с правым блоком.
-        let findPost = rightPosts.postsArr.find( (item) => item.id === postItem.id); // Смторим есть ли в правом блоке добавляемый пост
-        if (typeof findPost === 'undefined'){ // Если добавляемый пост уже есть то ничего не делаем, иначе - добавляем
-
-            localStorage.setItem(postItem.id, postItem.id);
-            setElem(postItem, 'right-posts', function(){ // Заносим в массив правых постов добавляемый пост. Через callback ставим onclick
-
-                this.HTMLElem.querySelector('.post-item__btn-remove').onclick = ()=>{
-                    rightPosts.removePost(this);
-                };
-                rightPosts.HTMLBox.append(this.HTMLElem);
-                rightPosts.postsArr.push(this);
-
-            });
-        } else alert('Пост уже добавлен в избранное');
+    {
+        HTMLBox: {
+            value: document.querySelector('#left-posts-box')
+        },
+        showMoreBtn: {
+            value: document.querySelector('.content-left__btn-showmore')
+        },
+        currentPostIndex: {
+            value: 0,
+            writable: true
+        }
     }
+);
 
-};
-
-const rightPosts = { // объект правого блока с сохраненными постами. Методы: загрузка постов из localStorage, удаление поста и сохраненных
-    HTMLBox: document.querySelector('#right-posts-box'),
-    postsArr: [],
-
-    load(postsStorage = Object.values(localStorage).sort(sortLocalStorage)){ //загрузка постов
+const rightPosts = Object.create(
+    {
+        load(postsStorage = Object.values(localStorage).sort(sortLocalStorage)){ //загрузка постов
             fetch(`https://jsonplaceholder.typicode.com/posts`)
                 .then(response => {
-
                     if (response.ok) return response.json(); // Если запрос прошел верно, преобразуем ответ сервера в json
-
                 }, error => alert(error)) // Обработка ошибки
                 .then(json =>  {
-
                     postsStorage = postsStorage.map(Number);
                     let posts = json.filter(item => postsStorage.indexOf(item.id) !== -1);
                     posts.forEach( item => {
@@ -78,21 +86,30 @@ const rightPosts = { // объект правого блока с сохране
                     });
 
                 })
+        },
+        removePost(postItem){ // Удаляет пост из localStorage, DOM и массива.
+            let elem  = postItem.HTMLElem;
+            localStorage.removeItem(postItem.id);
+            let findPost = this.postsArr.find(item => item.id === postItem.id);
+            elem.classList.remove('active');
+
+            setTimeout(()=>{
+                this.HTMLBox.removeChild(postItem.HTMLElem);
+            },300);
+
+            this.postsArr.splice(this.postsArr.indexOf(findPost),1);
+        }
     },
-    removePost(postItem){ // Удаляет пост из localStorage, DOM и массива.
-        let elem  = postItem.HTMLElem;
-        localStorage.removeItem(postItem.id);
-        let findPost = this.postsArr.find(item => item.id === postItem.id);
-        elem.classList.remove('active');
-
-        setTimeout(()=>{
-            this.HTMLBox.removeChild(postItem.HTMLElem);
-        },300);
-
-        this.postsArr.splice(this.postsArr.indexOf(findPost),1);
+    {
+        HTMLBox: {
+            value: document.querySelector('#right-posts-box')
+        },
+        postsArr: {
+            value: [],
+            writable: true
+        }
     }
-
-};
+);
 
 function PostItem(post){ // создает объект PostItem.
     this.HTMLElem = null;
@@ -144,5 +161,5 @@ leftPosts.showMoreBtn.addEventListener('click', function () {
     leftPosts.showMoreBtn.setAttribute("disabled", "");
 });
 
-leftPosts.load(80);
+leftPosts.load(90);
 rightPosts.load();

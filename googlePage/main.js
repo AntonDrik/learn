@@ -3,7 +3,7 @@ const searchForm = {
     HTMLBox: document.querySelector('#search-form__search-box'),
     inputHTML: document.querySelector('#search-form__input'),
     dataListHTML: document.querySelector('#data-list'),
-    searchDataArr: ['дом', 'Большая квартира','javascript','чай','программирование','простое предложение', 'human', 'edge'],
+    searchDataArr: ['hello', 'hello world', 'orange', 'hello from itsm'],
 
     setListeners(){
         this.inputHTML.addEventListener('click',  (e)=> {
