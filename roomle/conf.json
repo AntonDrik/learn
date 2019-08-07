@@ -97,7 +97,7 @@
         "visible": "false",
         "visibleInPartList": "false"
     },
-    {
+    {        
         "defaultValue": 1,
         "key": "showLeftLeg",
         "type": "Decimal",
