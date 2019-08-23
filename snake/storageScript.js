@@ -48,8 +48,8 @@ function Storage(){
         const modeArr = getModeArr(`0|${mode}`, true).reverse();
         popupMode.innerHTML = `Режим: ${mode}`;
         if (modeArr.length !== 0){
-                table.innerHTML = "";
-            
+            table.innerHTML = "";
+            //header
             let header = table.createTHead().insertRow();
             header.insertCell().innerHTML = 'Name';
             for (let key in modeArr[0].data){
