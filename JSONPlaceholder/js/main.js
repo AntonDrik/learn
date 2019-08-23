@@ -9,12 +9,6 @@ const leftPosts = Object.create(
                     }
                 }, error => alert(error))
 				.then(json =>  {
-
-				    // let posts = json.filter( (item, index) => index>=this.currentPostIndex && index<this.currentPostIndex+count);
-                    // if (json.id-count === this.currentPostIndex) {
-                    //     this.showMoreBtn.dataset.end = "true";
-                    //     leftPosts.showMoreBtn.setAttribute("disabled", "");
-                    // }
                     if (json.length){
                         json.forEach(item => {
                             setElem(item, 'left-posts', function(){

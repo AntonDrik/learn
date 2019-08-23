@@ -1,0 +1,163 @@
+#area{
+    width: 100%;
+    height: 100%;
+}
+
+#area td{
+    height: 15px;
+    width:15px;
+    text-align: center;
+    border: 0px;
+    background-color: beige;
+    background-repeat: round;
+}
+
+#popup__table{
+    width: 400px;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+#popup__table thead{
+    background-color: #b5cccb;
+}
+
+#popup__table tbody{
+    background-color: #309e9a;
+}
+
+#popup__table td{
+    text-align: center;
+    width: auto;
+    padding: 7px;
+}
+
+P{
+    margin:0px;
+}
+
+input{
+    width: 50px;
+}
+
+#modes{
+    display: inline;
+}
+
+.appleElem, .lastAppleElem, .speedAppleElem, .hpBlock{
+    background-repeat: round;
+}
+
+.appleElem{
+    background-image: url("img/apple.png");
+}
+
+.lastAppleElem{
+    background-image: url("img/LastApple.png");
+}
+
+.speedAppleElem{
+    background-image: url("img/speedApple.png");
+}
+
+.gameArea{
+    display: flex;
+}
+
+.info{
+    padding-left:10px;
+    font-size: 25px;
+    color: green;
+}
+
+.crashBlock{
+    background-image: url("img/block.png");
+    background-repeat: inherit;
+}
+
+.hpBlock{
+    background-image: url("img/HP.png");
+}
+
+.options{
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.freeGame{
+    background-color: cadetblue;
+    padding: 5px;
+}
+
+.startCaption{
+    color: green;
+    font-size: 20px;
+    margin: 0px;
+    padding-top: 5px;
+    padding-left: 5px;
+}
+
+.addBlockButton{
+    border-color: deepskyblue;
+    background-color: darkkhaki;
+}
+
+.rating-btn{
+    margin-right: 5px;
+    background-color: #5e9ea0;
+    text-align: center;
+    padding: 6px;
+    text-decoration: none;
+    color: black;
+}
+
+#popup:target{
+    display: flex;
+}
+
+.popup__wrapper{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #00000075;
+    display: none;
+    justify-content: center;
+}
+
+.popup__rating{
+    position: relative;
+    max-width: 500px;
+    height: 458px;
+    margin-top: 100px;
+    border-radius: 15px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.5);
+    background-color: white;
+    opacity: 1;
+    overflow: hidden;
+}
+.popup__rating h2,
+.popup__rating h3{
+    text-align: center;
+}
+.popup__rating h2{
+    padding: 10px;
+    margin-bottom: 0px;
+}
+
+.popup__rating h3{
+    margin-top: 0px;
+}
+
+.popup__close{
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    text-align: center;
+    padding: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}

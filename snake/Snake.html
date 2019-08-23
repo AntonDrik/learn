@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<HTML i18n-values="dir:textdirection;lang:language" dir="ltr" lang="ru" i18n-processed>
+	<HEAD>
+		<TITLE>Made</TITLE>
+		<META content="text/html; charset=UTF-8" http-equiv=Content-Type>
+		<link rel="stylesheet" href="style.css">
+	</HEAD>
+	<BODY>
+		<div class='options'>
+		 	
+			<p id="caption" class="startCaption">Нажмите ПРОБЕЛ чтобы начать</p>
+		</div>
+		<div class='gameArea'>
+			<div class="options-wrapper">
+				<div class="options">
+					<a id="rating-btn" class="rating-btn" href="#popup">Rating</a>
+					<div class="freeGame">
+						<button type=submit id="freeGameBtn">Free Game</button>
+						<div id="modes">
+							<select id="options" >
+								<option>Standart mode</option>
+								<option>AutoSpeed mode</option>
+								<option>Add Blocks</option>
+								<option>Delete Blocks</option>
+							</select>
+							Speed:<input id='speedValue' type="edit" value=50>
+						</div>
+					</div>
+				</div>
+				<TABLE border=1 cellSpacing=0 cellPadding=0 id='area'></TABLE>
+			</div>
+			
+			<div class='info'>
+				<p id="score">Score:0|-</p>
+				<p id="level">Level:-</p>
+				<p id="speed">Speed:</p>
+				<p id="hp">HP:</p>
+				<p id="mode">Mode:</p>
+			</div>
+		</div>
+		<div id="popup" class="popup__wrapper">
+			<div id="result" class="popup__rating">
+				<a href="#" id="popup-close" class="popup__close">&#9746;</a>
+				<h2>Рейтинг игроков</h2>
+				<h3 id="popup__mode">Режим: </h3>
+				<table id="popup__table">
+				</table>
+			</div>
+		</div>
+		<SCRIPT defer src = "storageScript.js" type="module" language=javascript type=text/javascript></SCRIPT>
+		<SCRIPT defer src = "levelScript.js" type="module" language=javascript type=text/javascript></SCRIPT>
+		<SCRIPT defer src = "errorPageStrings.js" type="module" language=javascript type=text/javascript></SCRIPT>
+	</BODY>
+</HTML>  

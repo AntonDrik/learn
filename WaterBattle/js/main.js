@@ -428,13 +428,3 @@ btnStart.addEventListener("click", function(){
         }
     }
 });
-
-for(let i = 0; i < 10; i++){
-    let btn = document.createElement('button');
-    btn.onclick = function(){
-        setTimeout(()=>{
-            console.log(i);
-        }, 1000)
-    };
-    document.body.append(btn);
-}
