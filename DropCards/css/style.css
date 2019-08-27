@@ -17,10 +17,18 @@
     background-color: rgb(255, 255, 255);
     border-radius: 15px;
     cursor: pointer;
+    border: 3px solid rgb(76, 40, 135);
+    position: absolute;
 }
 
-.card__info{
-	position: absolute;
-    transform: translateY(65px);
-    border: 3px solid rgb(76, 40, 135);
+.card__title{
+    pointer-events: none;
+}
+
+.card-transition{
+    transition: all 0.2s ease;
+}
+
+.card-transition-finish{
+    transition: all 1.5s ease;
 }

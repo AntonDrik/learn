@@ -52,10 +52,7 @@ class GameArea {
     }
 
     createTable() {
-        if (HTML.table.rows[0] !== undefined){
-            HTML.table.querySelector('tbody').remove();
-        }
-        
+        if (HTML.table.rows[0] !== undefined) HTML.table.querySelector('tbody').remove();
         for (let i = 0; i < this.level.rows; i++) {
             HTML.table.insertRow();
             for (let j = 0; j < this.level.cells; j++) {
@@ -71,65 +68,38 @@ class GameArea {
     start() {
         this.KEY_SPACE = true;
         this.gameIteration = setInterval( () => {
-            if (this.drive[0] === 1 && snake.head.cell)
+            if (this.drive[0] === 1){
                 snake.body.unshift({
                     row: snake.head.row,
-                    cell: snake.head.cell - 1
+                    cell: (snake.head.cell) ? snake.head.cell - 1 : this.level.cells - 1
                 });
-            else if (this.drive[0] === 1 && !snake.head.cell)
+            }
+            if (this.drive[0] === 2){
+                snake.body.unshift({
+                    row: (snake.head.row) ? snake.head.row - 1 : this.level.rows - 1,
+                    cell: snake.head.cell
+                });
+            }
+            if (this.drive[0] === 3){
                 snake.body.unshift({
                     row: snake.head.row,
-                    cell: this.level.cells - 1
+                    cell: (snake.head.cell !== this.level.cells - 1) ? snake.head.cell + 1 : 0
                 });
-
-            if (this.drive[0] === 2 && snake.head.row)
+            }
+            if (this.drive[0] === 4){
                 snake.body.unshift({
-                    row: snake.head.row - 1,
+                    row: (snake.head.row !== this.level.rows - 1) ? snake.head.row + 1 : 0,
                     cell: snake.head.cell
                 });
-            else if (this.drive[0] === 2 && !snake.head.row)
-                snake.body.unshift({
-                    row: this.level.rows - 1,
-                    cell: snake.head.cell
-                });
-
-            if (this.drive[0] === 3 && snake.head.cell !== this.level.cells - 1)
-                snake.body.unshift({
-                    row: snake.head.row,
-                    cell: snake.head.cell + 1
-                });
-            else if (this.drive[0] === 3 && snake.head.cell === this.level.cells - 1)
-                snake.body.unshift({
-                    row: snake.head.row,
-                    cell: 0
-                });
-
-            if (this.drive[0] === 4 && snake.head.row !== this.level.rows - 1)
-                snake.body.unshift({
-                    row: snake.head.row + 1,
-                    cell: snake.head.cell
-                });
-            else if (this.drive[0] === 4 && snake.head.row === this.level.rows - 1)
-                snake.body.unshift({
-                    row: 0,
-                    cell: snake.head.cell
-                });
-            //-------------------------------------------------------------------
+            }
+            // calculate corners
             if (this.drive[0] !== this.tmpDrive[0]) {
                 let x = 0;
-                if (this.drive[0] === 1) {
-                    if (this.tmpDrive[0] === 2) x = 4;
-                    if (this.tmpDrive[0] === 4) x = 1;
-                } else if (this.drive[0] === 2) {
-                    if (this.tmpDrive[0] === 1) x = 2;
-                    if (this.tmpDrive[0] === 3) x = 1;
-                } else if (this.drive[0] === 3) {
-                    if (this.tmpDrive[0] === 2) x = 3;
-                    if (this.tmpDrive[0] === 4) x = 2;
-                } else if (this.drive[0] === 4) {
-                    if (this.tmpDrive[0] === 1) x = 3;
-                    if (this.tmpDrive[0] === 3) x = 4;
-                }
+                if (this.drive[0] === 1)      x = (this.tmpDrive[0] === 2) ? 4 : (this.tmpDrive[0] === 4) ? 1 : null;
+                else if (this.drive[0] === 2) x = (this.tmpDrive[0] === 1) ? 2 : (this.tmpDrive[0] === 3) ? 1 : null;
+                else if (this.drive[0] === 3) x = (this.tmpDrive[0] === 2) ? 3 : (this.tmpDrive[0] === 4) ? 2 : null;
+                else if (this.drive[0] === 4) x = (this.tmpDrive[0] === 1) ? 3 : (this.tmpDrive[0] === 3) ? 4 : null;
+
                 snake.body[1].corner = x;
                 snake.body[1].drive = this.drive[0];
                 this.tmpDrive[0] = this.drive[0];
@@ -137,7 +107,6 @@ class GameArea {
             snake.body[0].drive = this.drive[0];
             snake.head = snake.body[0];
             if (!this.checkNextStep()) snake.printSnake(this.drive);
-
             if (this.drive.length !== 1) {
                 this.drive.shift();
                 this.tmpDrive.shift();
@@ -149,12 +118,10 @@ class GameArea {
     checkNextStep() {
         const el = snake.get("head").className;
         const elStyle = snake.get("head").style.backgroundImage;
-
         if (el === "crashBlock" || elStyle !== "") {
             this.stop();
             return 1;
         }
-        
         else if ((el === "appleElem" || el === "lastAppleElem") && this.score !== this.level.score){
             HTML.info.children[0].innerHTML = "Score:" + String(this.score += 1) + "|" + this.level.score;
             snake.body.push({
@@ -163,7 +130,6 @@ class GameArea {
             });
             new Apple();
         }
-
         else if (el === "speedAppleElem") {
             clearTimeout(timeID);
             Apple.counter = 0;
@@ -198,14 +164,13 @@ class Arcade extends GameArea {
         if(nextLevel !== 1) {
             this.level = nextLevel;
             this.initArea();
-            this.initGame();
         }
         else {
             clearInterval(this.gameIteration);
             game = new StandartMode();
-            game.initGame();
             alert("You win! Next level is Free Level. Enjoy it");
-        }   
+        }
+        game.initGame();
     }
 
     stop(){
@@ -213,40 +178,31 @@ class Arcade extends GameArea {
         if (!snake.hp) {
             let name = prompt("GameOver.You score:"+this.score+" Enter your Name", "");
             if (name){
-                const data = {
-                    numberLevel: this.level.numberLevel,
-                    score: this.score
-                };
+                const data = {numberLevel: this.level.numberLevel, score: this.score};
                 ResultStorage.setResult(`${name}|${this.constructor.name}`, data);
             }
             this.level = Levels.ArcadeLevel.init();
             this.initArea();
-            this.initGame();
             snake.setHP(3);
-        } else {
-            this.initGame();
         }
+        this.initGame();
     }
 
     checkNextStep() {
         if (!super.checkNextStep()){
             const el = snake.get("head").className;
-
-            if (el === "appleElem" || el === "lastAppleElem") {
+            if (el === "appleElem") {
                 if (this.level.numberLevel % 3 === 0 && this.score === this.level.score - 1) {
                     this.setHP();
                 }
-
-                if (this.score === this.level.score) {
-                    this.nextlevel();
-                    return 1;
-                }
-            } 
-    
+            }
+            if (el === "lastAppleElem") {
+                this.nextlevel();
+                return 1;
+            }
             if (el === "hpBlock") {
                 snake.setHP(snake.hp + 1);
             }
-
             if (el === "appleElem" || el === "lastAppleElem" || el === "hpBlock") snake.get("head").className = "";
         } else return 1;
     }
@@ -261,13 +217,13 @@ class FreeGame extends GameArea{
 
     constructor(){
         super();
-        this.level = Levels.FreeLevel; 
+        this.level = Levels.FreeLevel;
     }
 
     initArea(mode){
         super.initArea();
         snake.setHP(1);
-        level.setSpeed = Math.floor(HTML.speedValue.value);
+        this.level.setSpeed(Math.floor(HTML.speedValue.value));
         HTML.options.hidden = false;
         HTML.info.children[4].innerHTML = "Mode: " + mode;
     }
@@ -276,10 +232,6 @@ class FreeGame extends GameArea{
         HTML.table.addEventListener('click',  (e) => {
             let rowIndex = e.target.parentNode.rowIndex;
             let cellIndex = e.target.cellIndex;
-            this.level.crashBlocksArray.push({
-                row: rowIndex,
-                cell: cellIndex
-            });
             if (!!HTML.table.rows[rowIndex] && HTML.table.rows[rowIndex].cells[cellIndex].className === "")
                 HTML.table.rows[rowIndex].cells[cellIndex].className = "crashBlock";
         });
@@ -301,10 +253,7 @@ class FreeGame extends GameArea{
         let name = prompt("GameOver.You score:"+this.score+" Enter your Name", "");
         
         if (name){
-            const data = {
-                speed: 200 - this.level.speed,
-                score: this.score
-            };
+            const data = {speed: 200 - this.level.speed, score: this.score};
             ResultStorage.setResult(`${name}|${this.constructor.name}`, data);
         }
         this.score = 0;
@@ -375,20 +324,17 @@ const snake = {
     hp: 3,
 
     setSnake() {
-        
         //remove previous snake
         for (let i = 1; i < this.body.length; i++) {
             if (!!HTML.table.rows[this.body[i].row] && !!HTML.table.rows[this.body[i].row].cells[this.body[i].cell])
                 this.get(i).style.backgroundImage = "";
         }
-
         this.startPosition(3);
-        
         for (let i = 0; i < snake.body.length; i++) {
             switch(i){
-                case 0:                     this.get("head").style.backgroundImage = "url('img/snakeHeadR.png')"; break;
-                case this.body.length - 1:  this.get(i).style.backgroundImage = "url('img/snakeTailR.png')"; break;
-                default:                    this.get(i).style.backgroundImage = "url('img/snakeBodyRL.png')"; break;
+                case 0:                     this.get("head").style.backgroundImage = `url('${imgArrayHead[2]}')`; break;
+                case this.body.length - 1:  this.get(i).style.backgroundImage = `url('${imgArrayTail[2]}')`; break;
+                default:                    this.get(i).style.backgroundImage = `url('${imgArrayBody[2]}')`; break;
             }
         }
     },
@@ -396,7 +342,6 @@ const snake = {
     startPosition(length){
         this.body.length = 0;
         for (var i = length - 1; i >= 0; i--) {
-            
             this.body.push({
                 row: Math.floor(game.level.rows / 2),
                 cell: (Math.floor(game.level.cells / 2) - 1) + i,
@@ -409,14 +354,8 @@ const snake = {
 
     printSnake(drive) {
         this.get("head").style.backgroundImage = `url('${imgArrayHead[drive[0] - 1]}')`;
-
-        if (!!this.body[1].corner){
-            this.get("neck").style.backgroundImage = `url('${imgArrayCorner[this.body[1].corner]}')`;
-        }
-        else {
-            this.get("neck").style.backgroundImage = `url('${imgArrayBody[drive[0] - 1]}')`;
-        }
-
+        this.get("neck").style.backgroundImage = (!!this.body[1].corner) ? `url('${imgArrayCorner[this.body[1].corner]}')`
+                                                                         : `url('${imgArrayBody[drive[0] - 1]}')`;
         this.get("tail").style.backgroundImage = "";
         this.body.pop();
         this.tail = this.body[this.body.length - 1];
@@ -510,23 +449,7 @@ HTML.speedValue.addEventListener('keyup', function(e){
 
 HTML.options.addEventListener('change', function (e) {
     var index = e.srcElement.selectedIndex;
-    console.log(index);
-    switch(index){
-        case 0: {
-            game  = new StandartMode();
-            game.initGame();
-            break;
-        }
-        case 1: {
-            game  = new AutoSpeedMode();
-            game.initGame();
-            break;
-        }
-        case 2: {
-            game.setCrashBlocks();
-        }
-        case 3: {
-            game.clearCrashBlocks();
-        }
-    }
+    const change = (!index) ? game = new StandartMode() : (index === 1) ? game  = new AutoSpeedMode() : null;
+    if (change !== null) game.initGame();
+    (index === 2) ? game.setCrashBlocks() : (index === 3) ? game.clearCrashBlocks() : null;
 });
