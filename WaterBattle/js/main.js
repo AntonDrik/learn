@@ -88,31 +88,18 @@ class GameArea { // Игровая область. Содержит
         let direction = Math.floor(Math.random()*2); // Рандомно определяем направление корабля 0 - вертикально 1 - горизонтально
         let validLocation = this.getValidPoints(shipLength, direction); // Получаем массив валидных стартовых ячеек в зависимости от направления и размера создаваемого корабля
         if (!validLocation.length){ // Если валидных ячеек для корабля нет, меняем направление и ищем снова
-            if (direction === 1) {
-                direction = 2;
-            }
-            else {
-                direction = 1;
-            }
+            direction = (direction === 1) ? 2 : 1;
             validLocation = this.getValidPoints(shipLength, direction);
-            if (!validLocation.length) return 0; // Возвращает 0 если места для создания корабля нет
+            if (!validLocation.length) return 0; // Возвращает 0 если нет места для создания корабля
         } 
         validLocation = validLocation[Math.floor(Math.random()*validLocation.length)]; // Выбираем рандомную ячейку из массива полученных валидных ячеек
 
         for(let i = 0; i < shipLength; i++){ // Заполняем временный массив на основе стартовой ячейки, направления корабля и его длины
-            if (direction){
-                location.push({
-                    row: validLocation.row,
-                    cell: validLocation.cell+i,
-                    isHitted: false
-                });
-            } else {
-                location.push({
-                    row: validLocation.row+i,
-                    cell: validLocation.cell,
-                    isHitted: false
-                });
-            }
+            location.push({
+                row: (direction) ? validLocation.row : validLocation.row+i,
+                cell: (direction) ? validLocation.cell+i : validLocation.cell,
+                isHitted: false
+            });
         }
         location.locationArea(this.allLocation, 'set'); // Записываем в матрицу созданную область корабля и область вокруг
         return location; // Возвращаем область созданного корабля
@@ -127,28 +114,12 @@ class GameArea { // Игровая область. Содержит
         } else {
             row = this.areaSize-(shipLength-1);
         }
-        // matrixLoop.call(this, row, cell, this.allLocation, function(i,j){
-        //    counter = shipLength;
-        //     for (let k = 0; k < shipLength; k++){
-        //         if (direction && !this.allLocation[i][j+k]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для горизонтального корабля
-        //             counter--;
-        //         }
-        //         else if (!direction && !this.allLocation[i+k][j]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для вертикального корабля
-        //             counter--;
-        //         }
-        //     }
-        //     if(!counter){ // Если все ячейки по направлению корабля свободны записываем ячейку в массив.
-        //         validPoints.push({row: i, cell: j});
-        //     }
-        // });
         let func = matrixLoop.bind(this);
         func(row, cell, this.allLocation, function(i,j){
             counter = shipLength;
             for (let k = 0; k < shipLength; k++){
-                if (direction && !this.allLocation[i][j+k]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для горизонтального корабля
-                    counter--;
-                }
-                else if (!direction && !this.allLocation[i+k][j]){ // Проверяем чтобы по направлению корабля ячейки были свободны. Для вертикального корабля
+                // Проверяем чтобы по направлению корабля ячейки были свободны. Для горизонтального корабля
+                if ((direction && !this.allLocation[i][j+k]) || (!direction && !this.allLocation[i+k][j])){
                     counter--;
                 }
             }
@@ -202,13 +173,6 @@ class Computer extends GameArea{ // Объект компьютер
     }
     setHitsLocation(allLocation, difficult){
         if (this.hitsLocation.length) this.hitsLocation.length = 0;
-        // matrixLoop.call(this, allLocation.length, undefined, allLocation, function (i, j, elem){
-        //     if (difficult === 2 && elem < 2){
-        //         this.hitsLocation.push({row: i, cell: j});
-        //     } else if (difficult !== 2){
-        //         this.hitsLocation.push({row: i, cell: j});
-        //     }
-        // });
         let func = matrixLoop.bind(this);
         func(allLocation.length, undefined, allLocation, function (i, j, elem){
                 if (difficult === 2 && elem < 2){
@@ -300,7 +264,6 @@ function matrixLoop(row, cell = row, matrix, func){
 
 Array.prototype.locationArea = function(allLocation, action){
     let location = [];
-    // let tmpAllLocation = JSON.parse(JSON.stringify(allLocation));
     for (let item of this){
         for (let i = item.row-1; i <= item.row+1; i++){
             for(let j = item.cell-1; j <= item.cell+1; j++){
@@ -314,12 +277,6 @@ Array.prototype.locationArea = function(allLocation, action){
                         }
                     }
                     else if (action === 'get'){
-                        // if (!difficult && (tmpAllLocation[i][j]!==3 && tmpAllLocation[i][j]!==-1 && tmpAllLocation[i][j]!==4)){
-                        //     tmpAllLocation[i][j] = -1;
-                        //     location.push({row: i, cell: j});
-                        // } else if (difficult && tmpAllLocation[i][j]===1){
-                        //     location.push({row: i, cell: j});
-                        // }
                         if (allLocation[i][j]===1){
                             location.push({row: i, cell: j});
                         }
@@ -417,8 +374,13 @@ btnStart.addEventListener("click", function(){
                 let hitStatus = player.hit(coords[0], coords[1]);
                 if (hitStatus === 2){ // Корабль потоплен, убираем корабль из фокуса. Меняем сложность в зависимости от кол-ва кораблей
                     focusedShip.defocus();
-                    if ((difficult === 1 && player.ships.length === Math.floor(areaSize/3)) || (difficult === 2 && player.ships.length === (areaSize/2)+1)) {
+                    if (difficult === 1 && player.ships.length === Math.floor(areaSize/3)) {
+                        alert('123');
                         computer.setHitsLocation(player.allLocation, 2);
+                    }
+                    if (difficult === 2) {
+                        if ((areaSize === "20" && player.ships.length === 17) || (areaSize === "10" && player.ships.length === 5))
+                            computer.setHitsLocation(player.allLocation, 2);
                     }
                 }
                 else if (hitStatus === 3){

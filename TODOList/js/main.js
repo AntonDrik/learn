@@ -32,7 +32,7 @@ Object.defineProperty(TODOEditTask, "TODOListItem", {
         this.elem = value;
         this.TODOText = this.elem.children[0];
         this.EditBox = this.elem.children[1];
-}
+    }
 });
 
 function createDom(tag, className, value){

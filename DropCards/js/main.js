@@ -17,7 +17,7 @@ const Cards = {
         {text: 'finish2', img: '/'},
         {text: 'finish3', img: '/'}
     ],
-    randomColors: ['#59319c', '#dd1d93','#fec204'],
+    randomColors: ['#59319c', '#dd1d93','#fec204','#FE5D00','#C597FE','#96FEB7'],
     initHeight: 45,
     stepHeight: 20,
     count: 0,
@@ -124,6 +124,9 @@ class Card {
             let shiftX = event.clientX - this.card.offsetLeft;
             let shiftY = event.clientY - this.card.offsetTop;
             let maxLeft = null;
+
+            if (this.card.classList.contains('card-transition'))
+                this.card.classList.remove('card-transition');
 
             moveAt.call(this.card, event.pageX, event.pageY);
 
