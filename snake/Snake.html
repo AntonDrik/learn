@@ -8,28 +8,37 @@
 	<BODY>
 		<div class='options'>
 		 	
-			<p id="caption" class="startCaption">Нажмите ПРОБЕЛ чтобы начать</p>
+			<p id="caption" class="startCaption">Нажми ПРОБЕЛ чтобы начать</p>
 		</div>
 		<div class='gameArea'>
 			<div class="options-wrapper">
+                <img src="img/l.jpg" alt="" id="bg">
 				<div class="options">
 					<a id="rating-btn" class="rating-btn" href="#popup">Rating</a>
 					<div class="freeGame">
 						<button type=submit id="freeGameBtn">Free Game</button>
+						<button type=submit id="forPogran" style="background-color: lightskyblue; border:1px solid black; cursor: pointer">ForPogran</button>
 						<div id="modes">
 							<select id="options" >
 								<option>Standart mode</option>
 								<option>AutoSpeed mode</option>
 								<option>Add Blocks</option>
+								<option>Get Blocks Array</option>
 								<option>Delete Blocks</option>
 							</select>
 							Speed:<input id='speedValue' type="edit" value=50>
 						</div>
 					</div>
+					<div id="material">
+						<span>Material</span>
+						<img src="img/block.png" alt="" id="mat1">
+						<img src="img/crashBlock_1.png" alt="" id="mat2">
+						<img src="img/crashBlock_2.png" alt="" id="mat3">
+					</div>
 				</div>
 				<TABLE border=1 cellSpacing=0 cellPadding=0 id='area'></TABLE>
 			</div>
-			
+
 			<div class='info'>
 				<p id="score">Score:0|-</p>
 				<p id="level">Level:-</p>
