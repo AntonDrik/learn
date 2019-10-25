@@ -561,16 +561,17 @@ document.getElementById('forPogran').addEventListener('click' , () => {
         HPArr: [{i:5, j:66}, {i: 34, j: 73}, {i: 19, j: 70}, {i: 24, j: 44}, {i: 30, j: 22}]
     });
     game.initGame({
-        // snakePosition: {i: 5, j: 3, isLeft: false},
-        snakePosition: {i: 30, j: 19, isLeft: false},
+        snakePosition: {i: 5, j: 3, isLeft: false},
         finishPosition: {i: game.level.rows - 1, j: 1}
     });
+    HTML.table.classList.add("largeTable");
 });
 
 document.getElementById('freeGameBtn').addEventListener('click', () => {
     clearInterval(game.gameIteration);
     game = new StandartMode();
     game.initGame();
+    HTML.table.classList.remove("largeTable");
 });
 
 document.getElementById('material').addEventListener('click', (e) => {
